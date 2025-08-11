@@ -257,14 +257,31 @@
       footer { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 12px; }
 
       @media print {
-        body { background: var(--paper); }
+        html, body { background: var(--paper) !important; height: auto; overflow: visible; }
         header, .container, .actions, .print-hide, footer { display: none !important; }
-        .certificate-wrapper { display: block !important; margin: 0; }
-        .certificate { box-shadow: none; border: 0; padding: 20mm; }
-        .sign { grid-template-columns: 1fr 1fr; }
+        .certificate-wrapper { display: block !important; margin: 0; padding: 0; }
+        .certificate {
+          box-shadow: none; border: 0;
+          width: 100%; max-width: 190mm; margin: 0 auto;
+          padding: 12mm;
+          -webkit-print-color-adjust: exact; print-color-adjust: exact;
+          font-size: 11pt; line-height: 1.45;
+        }
+        .cert-header, .cert-block, .sign, .cert-grid .item { break-inside: avoid; page-break-inside: avoid; }
+        .cert-title { font-size: 16pt; }
+        .cert-law { font-size: 10pt; }
+        .cert-header h3 { font-size: 12pt; }
+        .cert-grid { grid-template-columns: 1fr; gap: 6pt 10pt; }
+        .cert-grid .item { grid-template-columns: 1fr; gap: 2pt; }
+        .sign { grid-template-columns: 1fr 1fr; gap: 16pt; }
         @page { size: A4; margin: 12mm; }
-        a[href]:after { content: " (" attr(href) ")"; font-size: 10px; color: #666; }
+        a[href]:after { content: " (" attr(href) ")"; font-size: 9pt; color: #666; }
       }
+
+      /* Classe utilitária para forçar estilos de impressão em captura (html2pdf) */
+      .force-print header, .force-print .container, .force-print .actions, .force-print .print-hide, .force-print footer { display: none !important; }
+      .force-print .certificate-wrapper { display: block !important; margin: 0; padding: 0; }
+      .force-print .certificate { width: 100%; max-width: 190mm; margin: 0 auto; padding: 12mm; background: #ffffff; color: #000; }
     </style>
   </head>
   <body>
@@ -396,7 +413,8 @@
     <section id="certWrapper" class="certificate-wrapper">
       <div class="print-actions print-hide">
         <button type="button" id="btnEditar" class="secondary">Editar dados</button>
-        <button type="button" id="btnImprimir">Imprimir / Baixar PDF</button>
+        <button type="button" id="btnImprimir">Imprimir</button>
+        <button type="button" id="btnBaixarPdf">Baixar PDF</button>
       </div>
       <article class="certificate" aria-label="Certificado de Pré-Qualificação" id="certificado">
         <div class="cert-header">
@@ -456,6 +474,15 @@
     </footer>
 
     <script>
+      // Carrega html2pdf.js a partir de CDN de forma assíncrona
+      (function loadHtml2Pdf() {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+        script.integrity = 'sha512-YcsIP8XlGJr9oZx2rj6iZy0Vtq7yGQWVE1zS9w+1H3t8m0gYt5pZ7Yzq3g2Yh8Q6ZcP1m5n6r8Y7GmG1JbQ1VQ==';
+        script.crossOrigin = 'anonymous';
+        script.referrerPolicy = 'no-referrer';
+        document.head.appendChild(script);
+      })();
       const STORAGE_KEY = "cert_pre_qualificacao_dados_v1";
 
       function byId(id) { return document.getElementById(id); }
@@ -739,6 +766,35 @@
           document.querySelector('.container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
         byId('btnImprimir').addEventListener('click', () => window.print());
+        byId('btnBaixarPdf').addEventListener('click', async () => {
+          const el = byId('certificado');
+          if (!el) return;
+          const orgao = (byId('certOrgao')?.textContent || 'certificado').replace(/[^\p{L}\p{N} _-]+/gu, '').slice(0, 60);
+          // Configurações otimizadas para mobile/A4
+          const opt = {
+            margin: [10, 10, 12, 10], // mm aprox, será convertido
+            filename: `Certificado-${orgao}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+              scale: Math.min(2, window.devicePixelRatio || 1.5),
+              useCORS: true,
+              scrollX: 0,
+              scrollY: -window.scrollY,
+              backgroundColor: '#ffffff'
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          };
+          try {
+            // Garante estilos de impressão antes da captura
+            const prev = document.body.className;
+            document.body.classList.add('force-print');
+            await new Promise(r => setTimeout(r, 50));
+            await window.html2pdf().from(el).set(opt).save();
+            document.body.className = prev;
+          } catch (e) {
+            alert('Falha ao gerar PDF. Tente novamente.');
+          }
+        });
       });
     </script>
   </body>
