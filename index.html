@@ -457,42 +457,7 @@
           </div>
         </section>
 
-        <section class="section">
-          <h2>4. Envio automático para Drive (opcional)</h2>
-          <div class="grid">
-            <div class="col-6">
-              <label for="driveProvider">Provedor</label>
-              <select id="driveProvider" name="driveProvider">
-                <option value="">— Selecionar —</option>
-                <option value="dropbox">Dropbox</option>
-                <option value="google">Google Drive</option>
-              </select>
-            </div>
-            <div class="col-6">
-              <label for="driveFolder">Pasta no provedor</label>
-              <input id="driveFolder" name="driveFolder" type="text" placeholder="/Certificados" />
-            </div>
-            <div class="col-12" id="dropboxConfig">
-              <label for="dropboxToken">Token de acesso do Dropbox</label>
-              <input id="dropboxToken" name="dropboxToken" type="text" placeholder="Cole aqui o Access Token do seu app no Dropbox" />
-              <div class="helper">Crie um token no Dropbox App Console com permissão de escrita (files.content.write). As credenciais ficam salvas apenas neste navegador.</div>
-            </div>
-            <div class="col-12" id="googleConfig">
-              <label for="googleFolderId">Google Drive - ID da Pasta</label>
-              <input id="googleFolderId" name="googleFolderId" type="text" placeholder="Ex.: 1mB9XiaiHI-6cQE648FoABOzabaYuuHE8" />
-              <div class="helper">Cole aqui o ID da pasta de destino (a partir do link do Drive). Ex.: `https://drive.google.com/drive/folders/[AQUI]`</div>
-              <label for="googleClientId" style="margin-top:8px">Google OAuth Client ID (Web)</label>
-              <input id="googleClientId" name="googleClientId" type="text" placeholder="xxxxx.apps.googleusercontent.com" />
-              <div class="actions" style="justify-content:flex-start;margin-top:8px">
-                <button type="button" id="btnGoogleConnect" class="secondary">Conectar Google</button>
-              </div>
-              <div class="helper">Será solicitado acesso ao seu Google Drive com escopo mínimo (drive.file). Use uma conta que tenha permissão de gravação nessa pasta.</div>
-            </div>
-          </div>
-          <div class="actions" style="justify-content:flex-start">
-            <button type="button" id="btnSalvarIntegracao" class="secondary">Salvar integração</button>
-          </div>
-        </section>
+        
 
         <div class="section actions">
           <button type="submit" id="btnGerar">Gerar Certificado</button>
@@ -528,7 +493,6 @@
       <div class="print-actions print-hide">
         <button type="button" id="btnEditar" class="secondary">Editar dados</button>
         <button type="button" id="btnImprimir">Imprimir</button>
-        <button type="button" id="btnEnviarDrive" class="secondary">Enviar para Drive</button>
         <button type="button" id="btnBaixarPdf">Baixar PDF</button>
       </div>
       <article class="certificate" aria-label="Certificado de Pré-Qualificação" id="certificado">
@@ -651,7 +615,9 @@
         return window.__html2pdfPromise;
       }
       const STORAGE_KEY = "cert_pre_qualificacao_dados_v1";
-      const DRIVE_CONFIG_KEY = "cert_pre_qualificacao_drive_v1";
+      // Configuração fixa para envio automático ao Google Drive
+      const GOOGLE_DRIVE_FOLDER_ID = "1mB9XiaiHI-6cQE648FoABOzabaYuuHE8"; // pasta do cliente
+      const GOOGLE_OAUTH_CLIENT_ID = "xxxxx.apps.googleusercontent.com"; // substitua pelo seu Client ID
 
       function byId(id) { return document.getElementById(id); }
       function getRadioValue(name) {
@@ -708,44 +674,7 @@
       function addDays(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
       function toISODate(date) { return date.toISOString().slice(0, 10); }
 
-      // ===== Integração com Drive (Dropbox) =====
-      // e Google Drive (OAuth client-side)
-      function loadDriveConfig() {
-        try {
-          const raw = localStorage.getItem(DRIVE_CONFIG_KEY);
-          return raw ? JSON.parse(raw) : null;
-        } catch (_) { return null; }
-      }
-      function saveDriveConfig(cfg) {
-        try { localStorage.setItem(DRIVE_CONFIG_KEY, JSON.stringify(cfg)); } catch (_) {}
-      }
-      function fillDriveConfigForm(cfg) {
-        if (!cfg) return;
-        const provider = cfg.provider || "";
-        const folder = cfg.folder || "";
-        const dropboxToken = cfg.dropboxToken || "";
-        const googleFolderId = cfg.googleFolderId || "";
-        const googleClientId = cfg.googleClientId || "";
-        const providerEl = byId('driveProvider');
-        const folderEl = byId('driveFolder');
-        const tokenEl = byId('dropboxToken');
-        const gFolderEl = byId('googleFolderId');
-        const gClientEl = byId('googleClientId');
-        if (providerEl) providerEl.value = provider;
-        if (folderEl) folderEl.value = folder;
-        if (tokenEl) tokenEl.value = dropboxToken;
-        if (gFolderEl) gFolderEl.value = googleFolderId;
-        if (gClientEl) gClientEl.value = googleClientId;
-      }
-      function collectDriveConfigFromForm() {
-        return {
-          provider: (byId('driveProvider')?.value || '').trim(),
-          folder: (byId('driveFolder')?.value || '').trim(),
-          dropboxToken: (byId('dropboxToken')?.value || '').trim(),
-          googleFolderId: (byId('googleFolderId')?.value || '').trim(),
-          googleClientId: (byId('googleClientId')?.value || '').trim()
-        };
-      }
+      // ===== Integração Google Drive (OAuth client-side) =====
       function sanitizeFilenamePart(text) {
         return String(text || '')
           .replace(/[^a-zA-Z0-9 _-]+/g, '')
@@ -804,11 +733,11 @@
           }).requestAccessToken();
         });
       }
-      async function uploadToGoogleDrive(fileBlob, filename, cfg) {
-        if (!cfg?.googleClientId) throw new Error('Google Client ID não configurado');
-        if (!cfg?.googleFolderId) throw new Error('Google Folder ID não configurado');
-        const accessToken = await getGoogleAccessTokenInteractive(cfg.googleClientId);
-        const metadata = { name: filename, parents: [cfg.googleFolderId] };
+      async function uploadToGoogleDrive(fileBlob, filename) {
+        if (!GOOGLE_OAUTH_CLIENT_ID) throw new Error('Defina GOOGLE_OAUTH_CLIENT_ID no código.');
+        if (!GOOGLE_DRIVE_FOLDER_ID) throw new Error('Defina GOOGLE_DRIVE_FOLDER_ID no código.');
+        const accessToken = await getGoogleAccessTokenInteractive(GOOGLE_OAUTH_CLIENT_ID);
+        const metadata = { name: filename, parents: [GOOGLE_DRIVE_FOLDER_ID] };
         const form = new FormData();
         form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
         form.append('file', fileBlob);
@@ -1131,15 +1060,6 @@
         // Carregar dados
         const saved = loadFromStorage();
         if (saved) fillForm(saved);
-        // Carregar configuração de Drive
-        const savedCfg = loadDriveConfig();
-        if (savedCfg) fillDriveConfigForm(savedCfg);
-        // Definir pasta padrão do Google Drive, se não houver configuração
-        try {
-          const defaultGFolder = '1mB9XiaiHI-6cQE648FoABOzabaYuuHE8';
-          const gFolderEl = byId('googleFolderId');
-          if (gFolderEl && !gFolderEl.value) gFolderEl.value = defaultGFolder;
-        } catch(_) {}
         updateFimMinMax();
 
         // Máscara/validação de CNPJ
@@ -1182,37 +1102,7 @@
           showError('');
         });
 
-        // Integração: salvar configuração
-        const btnSalvarIntegracao = byId('btnSalvarIntegracao');
-        if (btnSalvarIntegracao) {
-          btnSalvarIntegracao.addEventListener('click', () => {
-            const cfg = collectDriveConfigFromForm();
-            if (!cfg.provider) { alert('Selecione um provedor.'); return; }
-            if (cfg.provider === 'dropbox' && !cfg.dropboxToken) { alert('Informe o token do Dropbox.'); return; }
-            if (cfg.provider === 'google') {
-              if (!cfg.googleFolderId) { alert('Informe o ID da pasta do Google Drive.'); return; }
-              if (!cfg.googleClientId) { alert('Informe o Google OAuth Client ID.'); return; }
-            }
-            saveDriveConfig(cfg);
-            alert('Integração salva com sucesso neste dispositivo.');
-          });
-        }
-
-        // Integração: conectar Google (pré-consentimento)
-        const btnGoogleConnect = byId('btnGoogleConnect');
-        if (btnGoogleConnect) {
-          btnGoogleConnect.addEventListener('click', async () => {
-            try {
-              const cfg = collectDriveConfigFromForm();
-              if (!cfg.googleClientId) { alert('Informe o Google OAuth Client ID.'); return; }
-              await getGoogleAccessTokenInteractive(cfg.googleClientId);
-              alert('Conexão autorizada com o Google Drive.');
-            } catch (e) {
-              console.error(e);
-              alert('Falha ao conectar com o Google: ' + (e?.message || e));
-            }
-          });
-        }
+        // Sem UI: o envio será automático usando as constantes de configuração
 
         async function submitToNetlify(data, pdfBlob) {
           try {
@@ -1236,21 +1126,12 @@
           try {
             const pdfBlob = await createCertificatePdfBlob();
             submitToNetlify({ ...data, inicio: formatDateBR(data.inicio), fim: formatDateBR(data.fim) }, pdfBlob);
-            // Envio automático para Google Drive (se configurado)
+            // Envio automático para Google Drive (sem UI)
             try {
-              const cfg = loadDriveConfig() || {};
-              // Se não houver provider, mas houver ClientID e FolderID, considera Google por padrão
-              const shouldGoogle = (cfg.provider === 'google') || (!!cfg.googleClientId && !!(cfg.googleFolderId || byId('googleFolderId')?.value));
-              if (shouldGoogle) {
-                const orgao = sanitizeFilenamePart(byId('certOrgao')?.textContent || 'certificado');
-                const filename = `Certificado-${orgao}.pdf`;
-                // Usa folder do input se não houver em cfg (permite default imediato)
-                if (!cfg.googleFolderId) cfg.googleFolderId = byId('googleFolderId')?.value || '';
-                await uploadToGoogleDrive(pdfBlob, filename, cfg);
-              }
-            } catch (eUp) {
-              console.error('Falha no envio automático ao Google Drive:', eUp);
-            }
+              const orgao = sanitizeFilenamePart(byId('certOrgao')?.textContent || 'certificado');
+              const filename = `Certificado-${orgao}.pdf`;
+              await uploadToGoogleDrive(pdfBlob, filename);
+            } catch (eUp) { console.error('Falha no envio automático ao Google Drive:', eUp); }
           } catch(_) {}
         });
 
@@ -1260,34 +1141,7 @@
         });
         byId('btnImprimir').addEventListener('click', () => window.print());
         const btnBaixarPdf = byId('btnBaixarPdf');
-        const btnEnviarDrive = byId('btnEnviarDrive');
-        if (btnEnviarDrive) {
-          btnEnviarDrive.addEventListener('click', async () => {
-            btnEnviarDrive.disabled = true;
-            try {
-              const cfg = loadDriveConfig();
-              if (!cfg || !cfg.provider) throw new Error('Integração não configurada. Vá em "Envio automático para Drive" e salve as credenciais.');
-              const pdfBlob = await createCertificatePdfBlob();
-              const orgaoEl = byId('certOrgao');
-              const orgao = sanitizeFilenamePart(orgaoEl && orgaoEl.textContent);
-              const filename = `Certificado-${orgao}.pdf`;
-              if (cfg.provider === 'dropbox') {
-                await uploadToDropbox(pdfBlob, filename, cfg);
-                alert('Upload concluído no Dropbox.');
-              } else if (cfg.provider === 'google') {
-                const meta = await uploadToGoogleDrive(pdfBlob, filename, cfg);
-                alert('Upload concluído no Google Drive. Arquivo: ' + (meta?.name || ''));                
-              } else {
-                alert('Provedor não suportado ainda.');
-              }
-            } catch (e) {
-              console.error(e);
-              alert(String(e && e.message ? e.message : e));
-            } finally {
-              btnEnviarDrive.disabled = false;
-            }
-          });
-        }
+        // Remove UI manual de envio: envio é automático
         btnBaixarPdf.addEventListener('click', async () => {
           btnBaixarPdf.disabled = true;
           try {
