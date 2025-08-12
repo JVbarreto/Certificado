@@ -1055,7 +1055,8 @@
           byId('certWrapper').style.display = 'none';
           document.querySelector('.container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
-        byId('btnImprimir').addEventListener('click', () => {
+        const btnImprimir = byId('btnImprimir');
+        if (btnImprimir) btnImprimir.addEventListener('click', () => {
           try {
             const wrapper = byId('certWrapper');
             // Se o certificado não estiver visível, tenta gerar a partir do que está salvo
@@ -1075,7 +1076,7 @@
           setTimeout(() => { try { window.print(); } catch(_) {} }, 80);
         });
         const btnBaixarPdf = byId('btnBaixarPdf');
-        btnBaixarPdf.addEventListener('click', async () => {
+        if (btnBaixarPdf) btnBaixarPdf.addEventListener('click', async () => {
           btnBaixarPdf.disabled = true;
           try {
             const wrapper = byId('certWrapper');
@@ -1095,6 +1096,15 @@
             alert('Não foi possível gerar o PDF diretamente. Use a opção Imprimir e selecione "Salvar como PDF".');
           } finally {
             btnBaixarPdf.disabled = false;
+          }
+        });
+
+        const btnEditar = byId('btnEditar');
+        if (btnEditar) btnEditar.addEventListener('click', () => {
+          try { byId('certWrapper').style.display = 'none'; } catch(_) {}
+          const container = document.querySelector('.container');
+          if (container && container.scrollIntoView) {
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         });
       });
