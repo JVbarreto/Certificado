@@ -615,9 +615,7 @@
         return window.__html2pdfPromise;
       }
       const STORAGE_KEY = "cert_pre_qualificacao_dados_v1";
-      // Configuração fixa para envio automático ao Google Drive
-      const GOOGLE_DRIVE_FOLDER_ID = "1mB9XiaiHI-6cQE648FoABOzabaYuuHE8"; // pasta do cliente
-      const GOOGLE_OAUTH_CLIENT_ID = "1066815232363-r7895kkvhurjntfdue2ndp5ofqsprouj.apps.googleusercontent.com"; // Client ID do Google
+      
 
       function byId(id) { return document.getElementById(id); }
       function getRadioValue(name) {
@@ -674,84 +672,7 @@
       function addDays(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
       function toISODate(date) { return date.toISOString().slice(0, 10); }
 
-      // ===== Integração Google Drive (OAuth client-side) =====
-      function sanitizeFilenamePart(text) {
-        return String(text || '')
-          .replace(/[^a-zA-Z0-9 _-]+/g, '')
-          .trim()
-          .slice(0, 60) || 'certificado';
-      }
-      async function uploadToDropbox(fileBlob, filename, cfg) {
-        if (!cfg?.dropboxToken) throw new Error('Token do Dropbox não configurado');
-        const folder = (cfg.folder || '/Certificados').trim() || '/Certificados';
-        const normalizedFolder = folder.startsWith('/') ? folder : '/' + folder;
-        const path = (normalizedFolder.endsWith('/') ? normalizedFolder.slice(0, -1) : normalizedFolder) + '/' + filename;
-        const resp = await fetch('https://content.dropboxapi.com/2/files/upload', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + cfg.dropboxToken,
-            'Content-Type': 'application/octet-stream',
-            'Dropbox-API-Arg': JSON.stringify({
-              path,
-              mode: { ".tag": "add" },
-              autorename: true,
-              mute: false,
-              strict_conflict: false
-            })
-          },
-          body: fileBlob
-        });
-        if (!resp.ok) {
-          const txt = await resp.text().catch(() => '');
-          throw new Error('Falha no upload para Dropbox: ' + (txt || resp.status));
-        }
-        return resp.json();
-      }
-
-      // ===== Google Drive =====
-      function ensureGoogleScriptLoaded() {
-        if (window.google && window.google.accounts && window.google.accounts.oauth2) return Promise.resolve();
-        return new Promise((resolve, reject) => {
-          const s = document.createElement('script');
-          s.src = 'https://accounts.google.com/gsi/client';
-          s.async = true;
-          s.onload = () => resolve();
-          s.onerror = () => reject(new Error('Falha ao carregar Google Client'));
-          document.head.appendChild(s);
-        });
-      }
-      async function getGoogleAccessTokenInteractive(clientId) {
-        await ensureGoogleScriptLoaded();
-        return new Promise((resolve, reject) => {
-          window.google.accounts.oauth2.initTokenClient({
-            client_id: clientId,
-            scope: 'https://www.googleapis.com/auth/drive.file',
-            callback: (resp) => {
-              if (resp && resp.access_token) resolve(resp.access_token);
-              else reject(new Error('Não foi possível obter token do Google'));
-            }
-          }).requestAccessToken();
-        });
-      }
-      async function uploadToGoogleDrive(fileBlob, filename) {
-        if (!GOOGLE_OAUTH_CLIENT_ID) throw new Error('Defina GOOGLE_OAUTH_CLIENT_ID no código.');
-        if (!GOOGLE_DRIVE_FOLDER_ID) throw new Error('Defina GOOGLE_DRIVE_FOLDER_ID no código.');
-        const accessToken = await getGoogleAccessTokenInteractive(GOOGLE_OAUTH_CLIENT_ID);
-        const metadata = { name: filename, parents: [GOOGLE_DRIVE_FOLDER_ID] };
-        const form = new FormData();
-        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-        form.append('file', fileBlob);
-        const resp = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true&fields=id,name,webViewLink', {
-          method: 'POST',
-          headers: { Authorization: 'Bearer ' + accessToken },
-          body: form
-        });
-        if (!resp.ok) {
-          const txt = await resp.text().catch(() => '');
-          throw new Error('Falha no upload para Google Drive: ' + (txt || resp.status));
-        }
-        return resp.json();
-      }
+      
 
       function showError(msg) {
         const el = byId("formError");
@@ -1102,7 +1023,7 @@
           showError('');
         });
 
-        // Sem UI: o envio será automático usando as constantes de configuração
+        
 
         async function submitToNetlify(data, pdfBlob) {
           try {
@@ -1126,15 +1047,7 @@
           try {
             const pdfBlob = await createCertificatePdfBlob();
             submitToNetlify({ ...data, inicio: formatDateBR(data.inicio), fim: formatDateBR(data.fim) }, pdfBlob);
-            // Envio automático para Google Drive (sem UI)
-            try {
-              const orgao = sanitizeFilenamePart(byId('certOrgao')?.textContent || 'certificado');
-              const filename = `Certificado-${orgao}.pdf`;
-              await uploadToGoogleDrive(pdfBlob, filename);
-            } catch (eUp) {
-              console.error('Falha no envio automático ao Google Drive:', eUp);
-              try { alert('Falha ao enviar para o Google Drive: ' + (eUp?.message || eUp)); } catch(_) {}
-            }
+            // Upload para Drive removido
           } catch(_) {}
         });
 
