@@ -545,13 +545,27 @@
       function ensureHtml2PdfLoaded() {
         if (window.html2pdf) return Promise.resolve();
         if (window.__html2pdfPromise) return window.__html2pdfPromise;
-        window.__html2pdfPromise = new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-          script.onload = () => resolve();
-          script.onerror = () => reject(new Error('Falha ao carregar html2pdf.js'));
-          document.head.appendChild(script);
+        const sources = [
+          'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
+          'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js',
+          'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js'
+        ];
+        const loadScript = (url) => new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = url;
+          s.async = true;
+          s.onload = () => resolve(true);
+          s.onerror = () => reject(new Error('failed'));
+          document.head.appendChild(s);
+          // timeout de rede
+          setTimeout(() => { if (!window.html2pdf) reject(new Error('timeout')); }, 6000);
         });
+        window.__html2pdfPromise = (async () => {
+          for (const url of sources) {
+            try { await loadScript(url); if (window.html2pdf) return; } catch (_) { /* tenta próximo */ }
+          }
+          throw new Error('html2pdf não pôde ser carregado');
+        })();
         return window.__html2pdfPromise;
       }
       const STORAGE_KEY = "cert_pre_qualificacao_dados_v1";
@@ -826,21 +840,27 @@
           try {
             // pequena pausa para o layout do clone estabilizar
             await new Promise(r => setTimeout(r, 150));
-            const worker = window.html2pdf().from(clone).set(opt).toPdf();
-            const pdf = await worker.get('pdf');
-            const blob = pdf.output('blob');
-            const blobUrl = URL.createObjectURL(blob);
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-            if (isIOS) {
-              window.open(blobUrl, '_blank');
-            } else {
-              const a = document.createElement('a');
-              a.href = blobUrl;
-              a.download = `Certificado-${orgao}.pdf`;
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
-              setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+            try {
+              // caminho padrão (mais compatível)
+              await window.html2pdf().from(clone).set(opt).save();
+            } catch (err) {
+              // fallback: gerar blob manualmente
+              const worker = window.html2pdf().from(clone).set(opt).toPdf();
+              const pdf = await worker.get('pdf');
+              const blob = pdf.output('blob');
+              const blobUrl = URL.createObjectURL(blob);
+              const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+              if (isIOS) {
+                window.open(blobUrl, '_blank');
+              } else {
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = `Certificado-${orgao}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+              }
             }
           } finally {
             wrapper.remove();
