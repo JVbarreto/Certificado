@@ -1054,67 +1054,36 @@
           } catch(_) {}
         });
 
-        // Proteger cliques (evitar overlay bloquear)
-        const rawBtnEditar = byId('btnEditar');
-        if (rawBtnEditar) rawBtnEditar.addEventListener('click', (ev) => {
-          ev.preventDefault(); ev.stopPropagation();
-          byId('certWrapper').style.display = 'none';
-          document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-        const btnImprimir = byId('btnImprimir');
-        if (btnImprimir) btnImprimir.addEventListener('click', (ev) => {
-          ev.preventDefault(); ev.stopPropagation();
-          try {
-            const wrapper = byId('certWrapper');
-            // Se o certificado não estiver visível, tenta gerar a partir do que está salvo
-            if (wrapper && wrapper.style.display === 'none') {
-              const savedData = loadFromStorage();
-              if (savedData) {
-                // Gere sempre com o que houver; campos ausentes aparecerão como '—'
-                generateCertificate(savedData);
-              } else {
-                // fallback: usa dados do formulário atual
-                const data = collectForm();
-                generateCertificate(data);
-              }
-            }
-          } catch (_) {}
-          // pequena pausa para layout estabilizar
-          setTimeout(() => { try { window.print(); } catch(_) {} }, 80);
-        });
-        const btnBaixarPdf = byId('btnBaixarPdf');
-        if (btnBaixarPdf) btnBaixarPdf.addEventListener('click', async (ev) => {
-          ev.preventDefault(); ev.stopPropagation();
-          btnBaixarPdf.disabled = true;
-          try {
-            const wrapper = byId('certWrapper');
-            if (wrapper && wrapper.style.display === 'none') {
-              const savedData = loadFromStorage();
-              if (savedData) {
-                generateCertificate(savedData);
-              } else {
-                const data = collectForm();
-                generateCertificate(data);
-              }
-            }
-            await generatePdfFromCertificate();
-          } catch (e) {
-            console.error(e);
-            try { window.print(); } catch (_) {}
-            alert('Não foi possível gerar o PDF diretamente. Use a opção Imprimir e selecione "Salvar como PDF".');
-          } finally {
-            btnBaixarPdf.disabled = false;
-          }
-        });
-
-        const btnEditar = byId('btnEditar');
-        if (btnEditar) btnEditar.addEventListener('click', (ev) => {
+        // Delegação de eventos para garantir clique em desktop e mobile
+        document.addEventListener('click', async (ev) => {
+          const closest = ev.target && ev.target.closest ? ev.target.closest('#btnEditar, #btnImprimir, #btnBaixarPdf') : null;
+          if (!closest) return;
           ev.preventDefault();
-          ev.stopPropagation();
-          try { byId('certWrapper').style.display = 'none'; } catch(_) {}
-          const container = document.querySelector('.container');
-          if (container && container.scrollIntoView) {
-            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const ensureCertificateVisible = () => {
+            const wrapper = byId('certWrapper');
+            if (wrapper && wrapper.style.display === 'none') {
+              const savedData = loadFromStorage();
+              if (savedData) generateCertificate(savedData); else generateCertificate(collectForm());
+            }
+          };
+          if (closest.id === 'btnEditar') {
+            try { byId('certWrapper').style.display = 'none'; } catch(_) {}
+            const container = document.querySelector('.container');
+            if (container && container.scrollIntoView) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+          }
+          if (closest.id === 'btnImprimir') {
+            ensureCertificateVisible();
+            setTimeout(() => { try { window.print(); } catch (_) {} }, 80);
+            return;
+          }
+          if (closest.id === 'btnBaixarPdf') {
+            const btn = byId('btnBaixarPdf');
+            if (btn) btn.disabled = true;
+            try { ensureCertificateVisible(); await generatePdfFromCertificate(); }
+            catch (e) { console.error(e); try { window.print(); } catch (_) {} alert('Não foi possível gerar o PDF diretamente. Use a opção Imprimir e selecione "Salvar como PDF".'); }
+            finally { if (btn) btn.disabled = false; }
+            return;
           }
         });
       });
