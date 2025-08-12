@@ -252,7 +252,7 @@
       .cert-header .cert-logo { width: 96px; height: 96px; border: 1px solid #eee; border-radius: 8px; overflow: hidden; display: grid; place-items: center; background: #fafafa; }
       .cert-header .cert-logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
       .cert-header h3 { margin: 0; font-size: clamp(18px, 4.2vw, 20px); line-height: 1.35; font-weight: 700; font-family: "Cormorant Garamond", serif; letter-spacing: 0.2px; }
-      .cert-sub { color: #565656; margin: 2px 0 18px; font-size: 13px; }
+      .cert-sub { color: #565656; margin: 0; font-size: 13px; display: none; }
 
       .cert-title {
         text-align: center;
@@ -315,24 +315,7 @@
 
       footer { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 12px; }
 
-      /* Selo decorativo */
-      .cert-seal {
-        position: absolute;
-        right: 24px;
-        bottom: 24px;
-        width: 96px;
-        height: 96px;
-        border: 3px solid color-mix(in oklab, var(--gold) 85%, #b7924d);
-        border-radius: 50%;
-        color: color-mix(in oklab, var(--gold) 85%, #b7924d);
-        display: grid; place-items: center;
-        text-align: center;
-        font-family: "Cormorant Garamond", serif;
-        font-weight: 700;
-        letter-spacing: 0.6px;
-      }
-      .cert-seal span { display: block; font-size: 10px; text-transform: uppercase; }
-      .cert-seal strong { display: block; font-size: 13px; }
+      /* (Selo removido) */
 
       @media print {
         html, body { background: var(--paper) !important; height: auto; overflow: visible; }
@@ -352,7 +335,7 @@
         .cert-grid { display: none !important; }
         .sign { grid-template-columns: 1fr 1fr; gap: 16pt; }
         @page { size: A4; margin: 12mm; }
-        .cert-seal { right: 16mm; bottom: 16mm; width: 24mm; height: 24mm; border-width: 2px; font-size: 9pt; }
+        /* (Selo removido na impressão) */
       }
 
       /* Classe utilitária para captura offscreen (se for usada) */
@@ -553,7 +536,7 @@
         <div class="cert-block" style="font-size:12px;color:#444">
           <p>Este certificado poderá ser atualizado a qualquer tempo. A validade aqui registrada não poderá exceder 1 (um) ano nem ultrapassar a validade dos documentos apresentados.</p>
         </div>
-        <div class="cert-seal"><span>Pré</span><strong>Qualificado</strong></div>
+        
       </article>
     </section>
 
