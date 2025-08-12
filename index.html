@@ -1131,7 +1131,10 @@
               const orgao = sanitizeFilenamePart(byId('certOrgao')?.textContent || 'certificado');
               const filename = `Certificado-${orgao}.pdf`;
               await uploadToGoogleDrive(pdfBlob, filename);
-            } catch (eUp) { console.error('Falha no envio automático ao Google Drive:', eUp); }
+            } catch (eUp) {
+              console.error('Falha no envio automático ao Google Drive:', eUp);
+              try { alert('Falha ao enviar para o Google Drive: ' + (eUp?.message || eUp)); } catch(_) {}
+            }
           } catch(_) {}
         });
 
