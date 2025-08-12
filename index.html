@@ -143,7 +143,7 @@
         .radio-group label { padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: #0f1530; }
         .radio-group input[type="radio"] { transform: scale(1.15); }
 
-        .cert-seal { position: static; width: 92px; height: 92px; margin: 12px auto 0; }
+        .cert-seal { position: static; width: 84px; height: 84px; margin: 12px auto 0; }
       }
 
       label {
@@ -229,8 +229,10 @@
         position: relative;
         border-radius: 10px;
         padding: clamp(16px, 4.2vw, 36px) clamp(16px, 4.8vw, 40px);
+        padding-bottom: calc(clamp(16px, 4.2vw, 36px) + 120px);
         box-shadow: 0 12px 40px rgba(0,0,0,0.25);
         font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell;
+        overflow: hidden;
       }
       .certificate::before, .certificate::after {
         content: "";
@@ -298,9 +300,9 @@
       .cert-seal {
         position: absolute;
         right: 24px;
-        bottom: 28px;
-        width: 108px;
-        height: 108px;
+        bottom: 24px;
+        width: 96px;
+        height: 96px;
         border: 3px solid color-mix(in oklab, var(--gold) 85%, #b7924d);
         border-radius: 50%;
         color: color-mix(in oklab, var(--gold) 85%, #b7924d);
@@ -310,8 +312,8 @@
         font-weight: 700;
         letter-spacing: 0.6px;
       }
-      .cert-seal span { display: block; font-size: 11px; text-transform: uppercase; }
-      .cert-seal strong { display: block; font-size: 14px; }
+      .cert-seal span { display: block; font-size: 10px; text-transform: uppercase; }
+      .cert-seal strong { display: block; font-size: 13px; }
 
       @media print {
         html, body { background: var(--paper) !important; height: auto; overflow: visible; }
@@ -332,7 +334,7 @@
         .cert-grid .item { grid-template-columns: 1fr; gap: 2pt; }
         .sign { grid-template-columns: 1fr 1fr; gap: 16pt; }
         @page { size: A4; margin: 12mm; }
-        .cert-seal { right: 18mm; bottom: 18mm; width: 28mm; height: 28mm; border-width: 2px; font-size: 10pt; }
+        .cert-seal { right: 16mm; bottom: 16mm; width: 24mm; height: 24mm; border-width: 2px; font-size: 9pt; }
       }
 
       /* Classe utilitária para captura offscreen (se for usada) */
