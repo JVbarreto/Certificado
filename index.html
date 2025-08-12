@@ -273,6 +273,25 @@
       }
       .cert-law { text-align: center; color: #444; font-size: clamp(12px, 3.5vw, 14px); margin: 6px 0 16px; letter-spacing: 0.3px; }
 
+      /* Seções no corpo do certificado (modelo textual) */
+      .cert-body { margin-top: 8px; }
+      .cert-body p { margin: 8px 0; line-height: 1.6; }
+      .cert-section { margin-top: 14px; }
+      .cert-section h4 {
+        margin: 0 0 6px;
+        font-family: "Source Sans 3", system-ui, -apple-system;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.2px;
+        text-transform: uppercase;
+        color: #1a1a1a;
+      }
+      .cert-date { text-align: right; margin-top: 22px; }
+      .cert-footnote { margin-top: 12px; font-size: 12px; color: #555; text-align: center; }
+      .cert-footnote a { color: inherit; text-decoration: underline; }
+      /* Oculta grid antiga para focar no modelo textual */
+      .cert-grid { display: none; }
+
       .cert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px 16px; margin-top: 8px; }
       .cert-grid .item { display: grid; grid-template-columns: minmax(140px, 220px) 1fr; gap: 8px; align-items: baseline; }
       .cert-grid .item .label { color: #555; font-weight: 600; }
@@ -330,8 +349,7 @@
         .cert-title { font-size: 16pt; }
         .cert-law { font-size: 10pt; }
         .cert-header h3 { font-size: 12pt; }
-        .cert-grid { grid-template-columns: 1fr; gap: 6pt 10pt; }
-        .cert-grid .item { grid-template-columns: 1fr; gap: 2pt; }
+        .cert-grid { display: none !important; }
         .sign { grid-template-columns: 1fr 1fr; gap: 16pt; }
         @page { size: A4; margin: 12mm; }
         .cert-seal { right: 16mm; bottom: 16mm; width: 24mm; height: 24mm; border-width: 2px; font-size: 9pt; }
@@ -484,27 +502,39 @@
         <div class="cert-title">Certificado de Pré-Qualificação</div>
         <div class="cert-law">Conforme Lei nº 14.133/2021</div>
 
-        <div class="cert-block">
-          <p id="certDeclaracao"></p>
-        </div>
+        <div class="cert-block cert-body">
+          <p>
+            Certificamos, para os devidos fins, com fundamento no art. 80 da Lei nº 14.133, de 1º de abril de 2021, com observância à regulamentação municipal disposta no(a) <span id="valRegulamentacaoTxt"></span> e nos termos do(a) <span id="valProcessoTxt"></span> (Processo Administrativo nº <span id="valProcesso2"></span>)
+            <span id="valEditalTxt"></span>, que o(a) seguinte licitante/bem atende às exigências de pré-qualificação:
+          </p>
+          <p>
+            Pré-qualificado(a): <strong id="valRazaoTxt"></strong>; inscrita no CNPJ sob nº <strong id="valCnpjTxt"></strong>.
+          </p>
 
-        <div class="cert-block">
-          <div class="cert-grid">
-            <div class="item"><div class="label">Processo Administrativo:</div><div class="value" id="valProcesso"></div></div>
-            <div class="item"><div class="label">Edital de Pré-Qualificação:</div><div class="value" id="valEdital"></div></div>
-            <div class="item"><div class="label">Regulamentação Municipal:</div><div class="value" id="valRegulamentacao"></div></div>
-            <div class="item"><div class="label">Natureza:</div><div class="value" id="valNatureza"></div></div>
-            <div class="item"><div class="label">Abrangência:</div><div class="value" id="valAbrangencia"></div></div>
-            <div class="item" style="grid-column:1/-1"><div class="label">Segmento / Especialidade:</div><div class="value" id="valSegmento"></div></div>
-            <div class="item"><div class="label">Início da Validade:</div><div class="value" id="valInicio"></div></div>
-            <div class="item"><div class="label">Fim da Validade:</div><div class="value" id="valFim"></div></div>
-            <div class="item"><div class="label">Local de Emissão:</div><div class="value" id="valLocal"></div></div>
+          <div class="cert-section">
+            <h4>1. Escopo da Qualificação</h4>
+            <p>A presente pré-qualificação é de natureza <strong id="valNaturezaTxt"></strong>, com abrangência <strong id="valAbrangenciaTxt"></strong>, cobrindo os requisitos de habilitação e/ou especificações técnicas previstos no edital.</p>
+            <p>Esta qualificação é válida para o seguinte Objeto: <span id="valSegmentoTxt"></span>.</p>
           </div>
+
+          <div class="cert-section">
+            <h4>2. Validade</h4>
+            <p>Este certificado é válido de <strong id="valInicioTxt"></strong> a <strong id="valFimTxt"></strong>, observado o prazo de validade dos documentos que lhe deram base, prevalecendo o que expirar primeiro, nos termos do art. 80, § 8º, da Lei nº 14.133/2021.</p>
+          </div>
+
+          <div class="cert-section">
+            <h4>3. Condições e Observações</h4>
+            <p>A manutenção deste certificado está condicionada à conservação de todas as condições que ensejaram a sua emissão, podendo ser suspenso ou cancelado a qualquer tempo caso o pré-qualificado deixe de atender a tais condições. A presente pré-qualificação não gera direito subjetivo à futura contratação, mas sim habilita o interessado a participar de certames futuros para o objeto aqui especificado.</p>
+          </div>
+
+          <div class="cert-date"><span id="valLocalDataTxt"></span></div>
         </div>
 
-        <div class="cert-block" id="linksBloco" style="display:none">
-          <p>Consulta pública: <a id="valLinkPublico" href="#" target="_blank" rel="noopener noreferrer"></a></p>
-          <p>Lista de pré-qualificados: <a id="valLinkPncp" href="#" target="_blank" rel="noopener noreferrer"></a></p>
+        <div class="cert-block cert-footnote" id="linksBloco" style="display:none">
+          <p>A lista completa e atualizada de pré-qualificados pode ser consultada publicamente no endereço:<br/>
+            <a id="valLinkPublico" href="#" target="_blank" rel="noopener noreferrer"></a>
+          </p>
+          <p id="pncpRow" style="display:none">Lista de pré-qualificados: <a id="valLinkPncp" href="#" target="_blank" rel="noopener noreferrer"></a></p>
         </div>
 
         <div class="sign">
@@ -709,24 +739,21 @@
         const periodo = `${formatDateBR(data.inicio)} a ${formatDateBR(data.fim)}`;
         byId('certSubhead').textContent = `Validade: ${periodo}`;
 
-        // Declaração principal
-        const partes = [];
-        partes.push(`Certificamos que a empresa ${data.razao}, inscrita no CNPJ nº ${formatCnpj(data.cnpj)}, foi pré-qualificada no âmbito desta Administração, na natureza ${data.natureza}${data.abrangencia ? `, com abrangência ${data.abrangencia.toLowerCase()}` : ''}.`);
-        if (data.segmento) partes.push(`Segmento/Especialidade: ${data.segmento}.`);
-        partes.push(`Este certificado é emitido com base no Processo Administrativo nº ${data.processo}${data.edital ? `, Edital de Pré-Qualificação nº ${data.edital}` : ''}${data.regulamentacao ? ` e na regulamentação municipal ${data.regulamentacao}` : ''}.`);
-        partes.push(`Local e data de emissão: ${data.local}, ${formatDateBR(data.inicio)}.`);
-        byId('certDeclaracao').textContent = partes.join(' ');
+        // Modelo textual
+        byId('valRegulamentacaoTxt').textContent = data.regulamentacao || '—';
+        byId('valProcessoTxt').textContent = data.processo ? 'do ' : '';
+        byId('valProcesso2').textContent = data.processo || '—';
+        byId('valEditalTxt').textContent = data.edital ? `, Edital de Pré-Qualificação nº ${data.edital}` : '';
+        byId('valRazaoTxt').textContent = data.razao || '—';
+        byId('valCnpjTxt').textContent = formatCnpj(data.cnpj) || '—';
+        byId('valNaturezaTxt').textContent = data.natureza || '—';
+        byId('valAbrangenciaTxt').textContent = data.abrangencia || '—';
+        byId('valSegmentoTxt').textContent = data.segmento || '—';
+        byId('valInicioTxt').textContent = formatDateBR(data.inicio) || '—';
+        byId('valFimTxt').textContent = formatDateBR(data.fim) || '—';
+        byId('valLocalDataTxt').textContent = `${data.local || ''}, ${formatDateBR(data.inicio)}`;
 
-        // Campos
-        byId('valProcesso').textContent = data.processo || '-';
-        byId('valEdital').textContent = data.edital || '-';
-        byId('valRegulamentacao').textContent = data.regulamentacao || '-';
-        byId('valNatureza').textContent = data.natureza || '-';
-        byId('valAbrangencia').textContent = data.abrangencia || '-';
-        byId('valSegmento').textContent = data.segmento || '-';
-        byId('valInicio').textContent = formatDateBR(data.inicio) || '-';
-        byId('valFim').textContent = formatDateBR(data.fim) || '-';
-        byId('valLocal').textContent = data.local || '-';
+        // Assinaturas
         byId('valAutor').textContent = data.autor || '';
         byId('valCargo').textContent = data.cargo || '';
 
@@ -739,10 +766,8 @@
           byId('valLinkPublico').textContent = data.linkPublico;
           byId('valLinkPublico').href = data.linkPublico;
         }
-        if (hasPncp) {
-          byId('valLinkPncp').textContent = data.linkPncp;
-          byId('valLinkPncp').href = data.linkPncp;
-        }
+        byId('pncpRow').style.display = hasPncp ? 'block' : 'none';
+        if (hasPncp) { byId('valLinkPncp').textContent = data.linkPncp; byId('valLinkPncp').href = data.linkPncp; }
 
         // Logo
         setLogoPreview(data.logoDataUrl || '');
