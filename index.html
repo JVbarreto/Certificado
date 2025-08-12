@@ -812,8 +812,23 @@
 
           try {
             // pequena pausa para o layout do clone estabilizar
-            await new Promise(r => setTimeout(r, 50));
-            await window.html2pdf().from(clone).set(opt).save();
+            await new Promise(r => setTimeout(r, 150));
+            const worker = window.html2pdf().from(clone).set(opt).toPdf();
+            const pdf = await worker.get('pdf');
+            const blob = pdf.output('blob');
+            const blobUrl = URL.createObjectURL(blob);
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window).MSStream;
+            if (isIOS) {
+              window.open(blobUrl, '_blank');
+            } else {
+              const a = document.createElement('a');
+              a.href = blobUrl;
+              a.download = `Certificado-${orgao}.pdf`;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+            }
           } finally {
             wrapper.remove();
           }
@@ -879,13 +894,15 @@
         });
         byId('btnImprimir').addEventListener('click', () => window.print());
         byId('btnBaixarPdf').addEventListener('click', async () => {
+          btnBaixarPdf.disabled = true;
           try {
             await generatePdfFromCertificate();
           } catch (e) {
             console.error(e);
-            // Fallback: tenta abrir diálogo de impressão (permite salvar como PDF)
             try { window.print(); } catch (_) {}
             alert('Não foi possível gerar o PDF diretamente. Use a opção Imprimir e selecione "Salvar como PDF".');
+          } finally {
+            btnBaixarPdf.disabled = false;
           }
         });
       });
