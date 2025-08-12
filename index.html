@@ -1055,12 +1055,39 @@
           byId('certWrapper').style.display = 'none';
           document.querySelector('.container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
-        byId('btnImprimir').addEventListener('click', () => window.print());
+        byId('btnImprimir').addEventListener('click', () => {
+          try {
+            const wrapper = byId('certWrapper');
+            // Se o certificado não estiver visível, tenta gerar a partir do que está salvo
+            if (wrapper && wrapper.style.display === 'none') {
+              const savedData = loadFromStorage();
+              if (savedData) {
+                // Gere sempre com o que houver; campos ausentes aparecerão como '—'
+                generateCertificate(savedData);
+              } else {
+                // fallback: usa dados do formulário atual
+                const data = collectForm();
+                generateCertificate(data);
+              }
+            }
+          } catch (_) {}
+          // pequena pausa para layout estabilizar
+          setTimeout(() => { try { window.print(); } catch(_) {} }, 80);
+        });
         const btnBaixarPdf = byId('btnBaixarPdf');
-        // Remove UI manual de envio: envio é automático
         btnBaixarPdf.addEventListener('click', async () => {
           btnBaixarPdf.disabled = true;
           try {
+            const wrapper = byId('certWrapper');
+            if (wrapper && wrapper.style.display === 'none') {
+              const savedData = loadFromStorage();
+              if (savedData) {
+                generateCertificate(savedData);
+              } else {
+                const data = collectForm();
+                generateCertificate(data);
+              }
+            }
             await generatePdfFromCertificate();
           } catch (e) {
             console.error(e);
