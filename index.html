@@ -465,6 +465,27 @@
       </form>
     </main>
 
+    <!-- Formulário fantasma para Netlify Forms (para registro dos qualificados) -->
+    <form name="qualificados" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="qualificados" />
+      <input type="text" name="orgao" />
+      <input type="text" name="processo" />
+      <input type="text" name="edital" />
+      <input type="text" name="regulamentacao" />
+      <input type="text" name="natureza" />
+      <input type="text" name="abrangencia" />
+      <input type="text" name="razao" />
+      <input type="text" name="cnpj" />
+      <input type="text" name="segmento" />
+      <input type="text" name="inicio" />
+      <input type="text" name="fim" />
+      <input type="text" name="local" />
+      <input type="text" name="autor" />
+      <input type="text" name="cargo" />
+      <input type="url" name="linkPublico" />
+      <input type="text" name="bot-field" />
+    </form>
+
     <section id="certWrapper" class="certificate-wrapper">
       <div class="print-actions print-hide">
         <button type="button" id="btnEditar" class="secondary">Editar dados</button>
@@ -948,13 +969,24 @@
           showError('');
         });
 
-        byId('formCert').addEventListener('submit', (e) => {
+        async function submitToNetlify(data) {
+          try {
+            const formData = new FormData();
+            formData.append('form-name', 'qualificados');
+            for (const [k, v] of Object.entries(data)) formData.append(k, String(v ?? ''));
+            await fetch('/', { method: 'POST', body: formData });
+          } catch (_) { /* opcional: silencia erros de coleta */ }
+        }
+
+        byId('formCert').addEventListener('submit', async (e) => {
           e.preventDefault();
           const data = collectForm();
           const err = validateData(data);
           if (err) { showError(err); return; }
           showError('');
           saveToStorage(data);
+          // coleta assíncrona (Netlify Forms). Se não estiver hospedado no Netlify, apenas ignora.
+          submitToNetlify({ ...data, inicio: formatDateBR(data.inicio), fim: formatDateBR(data.fim) });
           generateCertificate(data);
         });
 
