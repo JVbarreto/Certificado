@@ -648,7 +648,6 @@
           autor: byId("autor").value.trim(),
           cargo: byId("cargo").value.trim(),
           linkPublico: byId("linkPublico").value.trim(),
-          linkPncp: byId("linkPncp").value.trim(),
           logoDataUrl: byId("logo").dataset.preview || ""
         };
       }
@@ -713,7 +712,6 @@
         byId("autor").value = data.autor || "";
         byId("cargo").value = data.cargo || "";
         byId("linkPublico").value = data.linkPublico || "";
-        byId("linkPncp").value = data.linkPncp || "";
         if (data.logoDataUrl) setLogoPreview(data.logoDataUrl);
       }
 
