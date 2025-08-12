@@ -483,6 +483,7 @@
       <input type="text" name="autor" />
       <input type="text" name="cargo" />
       <input type="url" name="linkPublico" />
+      <input type="file" name="arquivo" />
       <input type="text" name="bot-field" />
     </form>
 
@@ -946,6 +947,32 @@
             wrapper.remove();
           }
         }
+
+        async function createCertificatePdfBlob() {
+          await ensureHtml2PdfLoaded();
+          const src = byId('certificado');
+          if (!src) throw new Error('Sem certificado');
+          const wrapper = document.createElement('div');
+          wrapper.style.position = 'fixed';
+          wrapper.style.left = '-10000px';
+          wrapper.style.top = '0';
+          wrapper.style.width = '210mm';
+          wrapper.style.background = '#ffffff';
+          const clone = src.cloneNode(true);
+          clone.style.background = '#ffffff';
+          clone.style.color = '#000000';
+          wrapper.appendChild(clone);
+          document.body.appendChild(wrapper);
+          try {
+            if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch(_) {} }
+            const worker = window.html2pdf().from(clone).set({ jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).toPdf();
+            const pdf = await worker.get('pdf');
+            const arrayBuffer = pdf.output('arraybuffer');
+            return new Blob([arrayBuffer], { type: 'application/pdf' });
+          } finally {
+            wrapper.remove();
+          }
+        }
         // Carregar dados
         const saved = loadFromStorage();
         if (saved) fillForm(saved);
@@ -991,11 +1018,12 @@
           showError('');
         });
 
-        async function submitToNetlify(data) {
+        async function submitToNetlify(data, pdfBlob) {
           try {
             const formData = new FormData();
             formData.append('form-name', 'qualificados');
             for (const [k, v] of Object.entries(data)) formData.append(k, String(v ?? ''));
+            if (pdfBlob) formData.append('arquivo', pdfBlob, `Certificado-${(data.orgao||'orgao')}.pdf`);
             await fetch('/', { method: 'POST', body: formData });
           } catch (_) { /* opcional: silencia erros de coleta */ }
         }
@@ -1008,8 +1036,11 @@
           showError('');
           saveToStorage(data);
           // coleta assíncrona (Netlify Forms). Se não estiver hospedado no Netlify, apenas ignora.
-          submitToNetlify({ ...data, inicio: formatDateBR(data.inicio), fim: formatDateBR(data.fim) });
           generateCertificate(data);
+          try {
+            const pdfBlob = await createCertificatePdfBlob();
+            submitToNetlify({ ...data, inicio: formatDateBR(data.inicio), fim: formatDateBR(data.fim) }, pdfBlob);
+          } catch(_) {}
         });
 
         byId('btnEditar').addEventListener('click', () => {
