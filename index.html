@@ -786,6 +786,16 @@
           wrapper.appendChild(clone);
           document.body.appendChild(wrapper);
 
+          // Aguarda fontes e imagens do clone (evita PDF em branco)
+          if (document.fonts && document.fonts.ready) {
+            try { await document.fonts.ready; } catch (_) {}
+          }
+          const waitForImages = async (root) => {
+            const images = Array.from(root.querySelectorAll('img'));
+            await Promise.all(images.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = img.onerror = () => r(); })));
+          };
+          await waitForImages(clone);
+
           var orgaoText = 'certificado';
           var orgaoEl = byId('certOrgao');
           if (orgaoEl && typeof orgaoEl.textContent === 'string') { orgaoText = orgaoEl.textContent; }
@@ -793,7 +803,7 @@
             .replace(/[^a-zA-Z0-9 _-]+/g, '')
             .slice(0, 60);
 
-          const isSmallScreen = Math.min(window.innerWidth, window.innerHeight) < 600;
+          const isSmallScreen = Math.min(window.innerWidth || 0, window.innerHeight || 0) < 600;
           const scaleValue = isSmallScreen ? 1.0 : Math.min(1.4, window.devicePixelRatio || 1.2);
           const opt = {
             margin: [10, 10, 12, 10],
@@ -817,7 +827,7 @@
             const pdf = await worker.get('pdf');
             const blob = pdf.output('blob');
             const blobUrl = URL.createObjectURL(blob);
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window).MSStream;
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
             if (isIOS) {
               window.open(blobUrl, '_blank');
             } else {
@@ -893,7 +903,8 @@
           document.querySelector('.container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
         byId('btnImprimir').addEventListener('click', () => window.print());
-        byId('btnBaixarPdf').addEventListener('click', async () => {
+        const btnBaixarPdf = byId('btnBaixarPdf');
+        btnBaixarPdf.addEventListener('click', async () => {
           btnBaixarPdf.disabled = true;
           try {
             await generatePdfFromCertificate();
