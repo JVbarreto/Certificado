@@ -279,10 +279,8 @@
         a[href]:after { content: " (" attr(href) ")"; font-size: 9pt; color: #666; }
       }
 
-      /* Classe utilitária para forçar estilos de impressão em captura (html2pdf) */
-      .force-print header, .force-print .container, .force-print .actions, .force-print .print-hide, .force-print footer { display: none !important; }
-      .force-print .certificate-wrapper { display: block !important; margin: 0; padding: 0; }
-      .force-print .certificate { width: 100%; max-width: 190mm; margin: 0 auto; padding: 12mm; background: #ffffff; color: #000; }
+      /* Classe utilitária para captura offscreen (se for usada) */
+      .capture-context .certificate { background: #ffffff; color: #000000; }
     </style>
   </head>
   <body>
@@ -711,6 +709,50 @@
       }
 
       document.addEventListener('DOMContentLoaded', () => {
+        async function generatePdfFromCertificate() {
+          await ensureHtml2PdfLoaded();
+          const source = byId('certificado');
+          if (!source) return;
+
+          // Clona o certificado e renderiza offscreen para evitar piscar a UI
+          const wrapper = document.createElement('div');
+          wrapper.style.position = 'fixed';
+          wrapper.style.left = '-10000px';
+          wrapper.style.top = '0';
+          wrapper.style.width = '210mm';
+          wrapper.style.background = '#ffffff';
+          const clone = source.cloneNode(true);
+          // Garante fundo branco e texto escuro no clone
+          clone.style.background = '#ffffff';
+          clone.style.color = '#000000';
+          wrapper.appendChild(clone);
+          document.body.appendChild(wrapper);
+
+          const orgao = (byId('certOrgao')?.textContent || 'certificado')
+            .replace(/[^\p{L}\p{N} _-]+/gu, '')
+            .slice(0, 60);
+
+          const opt = {
+            margin: [10, 10, 12, 10],
+            filename: `Certificado-${orgao}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+              scale: Math.min(1.5, window.devicePixelRatio || 1.5),
+              useCORS: true,
+              scrollX: 0,
+              scrollY: 0,
+              backgroundColor: '#ffffff'
+            },
+            pagebreak: { mode: ['css', 'legacy'], avoid: ['.cert-header', '.cert-block', '.sign', '.item'] },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          };
+
+          try {
+            await window.html2pdf().from(clone).set(opt).save();
+          } finally {
+            wrapper.remove();
+          }
+        }
         // Carregar dados
         const saved = loadFromStorage();
         if (saved) fillForm(saved);
@@ -771,36 +813,11 @@
           document.querySelector('.container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
         byId('btnImprimir').addEventListener('click', () => window.print());
-        byId('btnBaixarPdf').addEventListener('click', async () => {
-          const el = byId('certificado');
-          if (!el) return;
-          const orgao = (byId('certOrgao')?.textContent || 'certificado').replace(/[^\p{L}\p{N} _-]+/gu, '').slice(0, 60);
-          // Configurações otimizadas para mobile/A4
-          const opt = {
-            margin: [10, 10, 12, 10], // mm aprox, será convertido
-            filename: `Certificado-${orgao}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-              scale: Math.min(2, window.devicePixelRatio || 1.5),
-              useCORS: true,
-              scrollX: 0,
-              scrollY: -window.scrollY,
-              backgroundColor: '#ffffff'
-            },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-          };
-          try {
-            await ensureHtml2PdfLoaded();
-            // Garante estilos de impressão antes da captura
-            const prev = document.body.className;
-            document.body.classList.add('force-print');
-            await new Promise(r => setTimeout(r, 50));
-            await window.html2pdf().from(el).set(opt).save();
-            document.body.className = prev;
-          } catch (e) {
+        byId('btnBaixarPdf').addEventListener('click', () => {
+          generatePdfFromCertificate().catch((e) => {
             console.error(e);
-            alert('Falha ao gerar PDF. Verifique sua conexão e tente novamente.');
-          }
+            alert('Falha ao gerar PDF. Tente novamente.');
+          });
         });
       });
     </script>
