@@ -449,13 +449,10 @@
               <input id="cargo" name="cargo" type="text" placeholder="Ex.: Secretário(a) Municipal de Administração" required />
             </div>
 
-            <div class="col-6">
+            <div class="col-12">
               <label for="linkPublico">Link para Consulta Pública</label>
               <input id="linkPublico" name="linkPublico" type="url" placeholder="https://..." />
-            </div>
-            <div class="col-6">
-              <label for="linkPncp">Link para lista de pré-qualificados (PNCP ou site oficial)</label>
-              <input id="linkPncp" name="linkPncp" type="url" placeholder="https://..." />
+              <div class="helper">Link para a lista de pré-qualificados no PNCP ou site oficial.</div>
             </div>
           </div>
         </section>
@@ -530,7 +527,6 @@
           <p>A lista completa e atualizada de pré-qualificados pode ser consultada publicamente no endereço:<br/>
             <a id="valLinkPublico" href="#" target="_blank" rel="noopener noreferrer"></a>
           </p>
-          <p id="pncpRow" style="display:none">Lista de pré-qualificados: <a id="valLinkPncp" href="#" target="_blank" rel="noopener noreferrer"></a></p>
         </div>
 
         <div class="cert-block" style="font-size:12px;color:#444">
@@ -742,15 +738,13 @@
 
         // Links
         const hasPublic = !!data.linkPublico;
-        const hasPncp = !!data.linkPncp;
-        const showLinks = hasPublic || hasPncp;
+        const showLinks = hasPublic;
         byId('linksBloco').style.display = showLinks ? 'block' : 'none';
         if (hasPublic) {
           byId('valLinkPublico').textContent = data.linkPublico;
           byId('valLinkPublico').href = data.linkPublico;
         }
-        byId('pncpRow').style.display = hasPncp ? 'block' : 'none';
-        if (hasPncp) { byId('valLinkPncp').textContent = data.linkPncp; byId('valLinkPncp').href = data.linkPncp; }
+        
 
         // Logo
         setLogoPreview(data.logoDataUrl || '');
