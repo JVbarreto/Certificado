@@ -844,22 +844,30 @@
               // caminho padrão (mais compatível)
               await window.html2pdf().from(clone).set(opt).save();
             } catch (err) {
-              // fallback: gerar blob manualmente
+              // fallback: gerar PDF e salvar manualmente em formato compatível com Windows/Edge
               const worker = window.html2pdf().from(clone).set(opt).toPdf();
               const pdf = await worker.get('pdf');
-              const blob = pdf.output('blob');
-              const blobUrl = URL.createObjectURL(blob);
-              const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-              if (isIOS) {
-                window.open(blobUrl, '_blank');
+              const arrayBuffer = pdf.output('arraybuffer');
+              const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+              if (blob.size < 1024) throw new Error('PDF vazio');
+              const filename = `Certificado-${orgao}.pdf`;
+              const nav = (window.navigator || {});
+              if (nav.msSaveOrOpenBlob) {
+                nav.msSaveOrOpenBlob(blob, filename);
               } else {
-                const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = `Certificado-${orgao}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+                const blobUrl = URL.createObjectURL(blob);
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                if (isIOS) {
+                  window.open(blobUrl, '_blank');
+                } else {
+                  const a = document.createElement('a');
+                  a.href = blobUrl;
+                  a.download = filename;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                }
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
               }
             }
           } finally {
