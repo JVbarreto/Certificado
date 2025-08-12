@@ -222,6 +222,7 @@
         display: none;
         margin: 32px auto 64px;
         max-width: 900px;
+        position: relative;
       }
       .certificate {
         background: var(--paper);
@@ -311,7 +312,9 @@
       .sign .name { font-weight: 700; font-family: "Cormorant Garamond", serif; font-size: 16px; letter-spacing: 0.3px; }
       .sign .role { color: #444; font-size: 14px; }
 
-      .print-actions { display: flex; gap: 10px; justify-content: flex-end; margin: 12px 0 8px; }
+      .print-actions { display: flex; gap: 10px; justify-content: flex-end; margin: 12px 0 8px; position: relative; z-index: 5; pointer-events: auto; }
+      .print-actions button { pointer-events: auto; }
+      .certificate { position: relative; z-index: 1; }
 
       footer { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 12px; }
 
@@ -1051,12 +1054,16 @@
           } catch(_) {}
         });
 
-        byId('btnEditar').addEventListener('click', () => {
+        // Proteger cliques (evitar overlay bloquear)
+        const rawBtnEditar = byId('btnEditar');
+        if (rawBtnEditar) rawBtnEditar.addEventListener('click', (ev) => {
+          ev.preventDefault(); ev.stopPropagation();
           byId('certWrapper').style.display = 'none';
-          document.querySelector('.container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          document.querySelector('.container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
         const btnImprimir = byId('btnImprimir');
-        if (btnImprimir) btnImprimir.addEventListener('click', () => {
+        if (btnImprimir) btnImprimir.addEventListener('click', (ev) => {
+          ev.preventDefault(); ev.stopPropagation();
           try {
             const wrapper = byId('certWrapper');
             // Se o certificado não estiver visível, tenta gerar a partir do que está salvo
@@ -1076,7 +1083,8 @@
           setTimeout(() => { try { window.print(); } catch(_) {} }, 80);
         });
         const btnBaixarPdf = byId('btnBaixarPdf');
-        if (btnBaixarPdf) btnBaixarPdf.addEventListener('click', async () => {
+        if (btnBaixarPdf) btnBaixarPdf.addEventListener('click', async (ev) => {
+          ev.preventDefault(); ev.stopPropagation();
           btnBaixarPdf.disabled = true;
           try {
             const wrapper = byId('certWrapper');
@@ -1100,7 +1108,9 @@
         });
 
         const btnEditar = byId('btnEditar');
-        if (btnEditar) btnEditar.addEventListener('click', () => {
+        if (btnEditar) btnEditar.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
           try { byId('certWrapper').style.display = 'none'; } catch(_) {}
           const container = document.querySelector('.container');
           if (container && container.scrollIntoView) {
