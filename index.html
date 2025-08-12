@@ -1134,6 +1134,12 @@
         // Carregar configuração de Drive
         const savedCfg = loadDriveConfig();
         if (savedCfg) fillDriveConfigForm(savedCfg);
+        // Definir pasta padrão do Google Drive, se não houver configuração
+        try {
+          const defaultGFolder = '1mB9XiaiHI-6cQE648FoABOzabaYuuHE8';
+          const gFolderEl = byId('googleFolderId');
+          if (gFolderEl && !gFolderEl.value) gFolderEl.value = defaultGFolder;
+        } catch(_) {}
         updateFimMinMax();
 
         // Máscara/validação de CNPJ
@@ -1230,6 +1236,21 @@
           try {
             const pdfBlob = await createCertificatePdfBlob();
             submitToNetlify({ ...data, inicio: formatDateBR(data.inicio), fim: formatDateBR(data.fim) }, pdfBlob);
+            // Envio automático para Google Drive (se configurado)
+            try {
+              const cfg = loadDriveConfig() || {};
+              // Se não houver provider, mas houver ClientID e FolderID, considera Google por padrão
+              const shouldGoogle = (cfg.provider === 'google') || (!!cfg.googleClientId && !!(cfg.googleFolderId || byId('googleFolderId')?.value));
+              if (shouldGoogle) {
+                const orgao = sanitizeFilenamePart(byId('certOrgao')?.textContent || 'certificado');
+                const filename = `Certificado-${orgao}.pdf`;
+                // Usa folder do input se não houver em cfg (permite default imediato)
+                if (!cfg.googleFolderId) cfg.googleFolderId = byId('googleFolderId')?.value || '';
+                await uploadToGoogleDrive(pdfBlob, filename, cfg);
+              }
+            } catch (eUp) {
+              console.error('Falha no envio automático ao Google Drive:', eUp);
+            }
           } catch(_) {}
         });
 
