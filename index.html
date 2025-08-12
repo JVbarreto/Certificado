@@ -786,16 +786,21 @@
           wrapper.appendChild(clone);
           document.body.appendChild(wrapper);
 
-          const orgao = (byId('certOrgao')?.textContent || 'certificado')
-            .replace(/[^\p{L}\p{N} _-]+/gu, '')
+          var orgaoText = 'certificado';
+          var orgaoEl = byId('certOrgao');
+          if (orgaoEl && typeof orgaoEl.textContent === 'string') { orgaoText = orgaoEl.textContent; }
+          const orgao = String(orgaoText)
+            .replace(/[^a-zA-Z0-9 _-]+/g, '')
             .slice(0, 60);
 
+          const isSmallScreen = Math.min(window.innerWidth, window.innerHeight) < 600;
+          const scaleValue = isSmallScreen ? 1.0 : Math.min(1.4, window.devicePixelRatio || 1.2);
           const opt = {
             margin: [10, 10, 12, 10],
             filename: `Certificado-${orgao}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
-              scale: Math.min(1.5, window.devicePixelRatio || 1.5),
+              scale: scaleValue,
               useCORS: true,
               scrollX: 0,
               scrollY: 0,
@@ -806,6 +811,8 @@
           };
 
           try {
+            // pequena pausa para o layout do clone estabilizar
+            await new Promise(r => setTimeout(r, 50));
             await window.html2pdf().from(clone).set(opt).save();
           } finally {
             wrapper.remove();
@@ -871,11 +878,15 @@
           document.querySelector('.container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
         byId('btnImprimir').addEventListener('click', () => window.print());
-        byId('btnBaixarPdf').addEventListener('click', () => {
-          generatePdfFromCertificate().catch((e) => {
+        byId('btnBaixarPdf').addEventListener('click', async () => {
+          try {
+            await generatePdfFromCertificate();
+          } catch (e) {
             console.error(e);
-            alert('Falha ao gerar PDF. Tente novamente.');
-          });
+            // Fallback: tenta abrir diálogo de impressão (permite salvar como PDF)
+            try { window.print(); } catch (_) {}
+            alert('Não foi possível gerar o PDF diretamente. Use a opção Imprimir e selecione "Salvar como PDF".');
+          }
         });
       });
     </script>
