@@ -1529,920 +1529,453 @@
 
 
   <script>
-
-    // Carrega html2pdf.js sob demanda e garante apenas um carregamento
-
-    function ensureHtml2PdfLoaded() {
-
-      if (window.html2pdf) return Promise.resolve();
-
-      if (window.__html2pdfPromise) return window.__html2pdfPromise;
-
-      const sources = [
-
-        'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
-
-        'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js',
-
-        'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js'
-
-      ];
-
-      const loadScript = (url) => new Promise((resolve, reject) => {
-
-        const s = document.createElement('script');
-
-        s.src = url;
-
-        s.async = true;
-
-        s.onload = () => resolve(true);
-
-        s.onerror = () => reject(new Error('failed'));
-
-        document.head.appendChild(s);
-
-        // timeout de rede
-
-        setTimeout(() => { if (!window.html2pdf) reject(new Error('timeout')); }, 6000);
-
-      });
-
-      window.__html2pdfPromise = (async () => {
-
-        for (const url of sources) {
-
-          try { await loadScript(url); if (window.html2pdf) return; } catch (_) { /* tenta próximo */ }
-
-        }
-
-        throw new Error('html2pdf não pôde ser carregado');
-
-      })();
-
-      return window.__html2pdfPromise;
-
-    }
-
-    const STORAGE_KEY = "cert_pre_qualificacao_dados_v1";
-
-
-
-    function byId(id) { return document.getElementById(id); }
-
-    function getRadioValue(name) {
-
-      const input = document.querySelector(`input[name="${name}"]:checked`);
-
-      return input ? input.value : "";
-
-    }
-
-    function setRadioValue(name, value) {
-
-      const input = document.querySelector(`input[name="${name}"][value="${value}"]`);
-
-      if (input) input.checked = true;
-
-    }
-
-    function onlyDigits(value) { return (value || "").replace(/\D+/g, ""); }
-
-    function formatCnpj(raw) {
-
-      const digits = onlyDigits(raw).slice(0, 14);
-
-      const parts = [];
-
-      if (digits.length > 0) parts.push(digits.slice(0, 2));
-
-      if (digits.length > 2) parts.push(digits.slice(2, 5));
-
-      if (digits.length > 5) parts.push(digits.slice(5, 8));
-
-      let suffix = "";
-
-      if (digits.length > 8) suffix = digits.slice(8, 12) + (digits.length > 12 ? "-" + digits.slice(12, 14) : "");
-
-      const main = parts.join(".");
-
-      return main + (digits.length > 8 ? "/" + suffix : "");
-
-    }
-
-    function isValidCnpj(raw) {
-
-      const digits = onlyDigits(raw);
-
-      if (digits.length !== 14) return false;
-
-      // Validação básica (comprimento) + rejeita repetidos
-
-      if (/^(\d)\1{13}$/.test(digits)) return false;
-
-      // Cálculo dos dígitos verificadores
-
-      const calc = (base) => {
-
-        let size = base.length;
-
-        let numbers = base.split("");
-
-        let sum = 0;
-
-        let pos = size - 7;
-
-        for (let i = size; i >= 1; i--) {
-
-          sum += parseInt(numbers[size - i], 10) * pos--;
-
-          if (pos < 2) pos = 9;
-
-        }
-
-        let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-
-        return result;
-
-      };
-
-      const base12 = digits.substring(0, 12);
-
-      const d1 = calc(base12);
-
-      const d2 = calc(base12 + d1);
-
-      return digits.endsWith(String(d1) + String(d2));
-
-    }
-
-
-
-    function formatDateBR(isoDate) {
-
-      if (!isoDate) return "";
-
-      const [y, m, d] = isoDate.split("-").map(Number);
-
-      if (!y || !m || !d) return "";
-
-      return String(d).padStart(2, "0") + "/" + String(m).padStart(2, "0") + "/" + y;
-
-    }
-
-    function parseISO(dateStr) { return dateStr ? new Date(dateStr + "T00:00:00") : null; }
-
-    function addDays(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
-
-    function toISODate(date) { return date.toISOString().slice(0, 10); }
-
-
-
-    function showError(msg) {
-
-      const el = byId("formError");
-
-      el.textContent = msg;
-
-      el.style.display = msg ? "block" : "none";
-
-    }
-
-
-
-    function collectForm() {
-
-      return {
-
-        orgao: byId("orgao").value.trim(),
-
-        processo: byId("processo").value.trim(),
-
-        edital: byId("edital").value.trim(),
-
-        regulamentacao: byId("regulamentacao").value.trim(),
-
-        natureza: getRadioValue("natureza"),
-
-        abrangencia: getRadioValue("abrangencia"),
-
-        razao: byId("razao").value.trim(),
-
-        cnpj: byId("cnpj").value.trim(),
-
-        segmento: byId("segmento").value.trim(),
-
-        inicio: byId("inicio").value,
-
-        fim: byId("fim").value,
-
-        local: byId("local").value.trim(),
-
-        autor: byId("autor").value.trim(),
-
-        cargo: byId("cargo").value.trim(),
-
-        linkPublico: byId("linkPublico").value.trim(),
-
-        logoDataUrl: byId("logo").dataset.preview || ""
-
-      };
-
-    }
-
-
-
-    function validateData(data) {
-
-      // Campos obrigatórios
-
-      const required = [
-
-        ["orgao", "Informe o órgão/entidade emissora."],
-
-        ["processo", "Informe o número do processo administrativo."],
-
-        ["natureza", "Selecione a natureza da pré-qualificação."],
-
-        ["abrangencia", "Selecione a abrangência (Total ou Parcial)."],
-
-        ["razao", "Informe a razão social."],
-
-        ["cnpj", "Informe o CNPJ."],
-
-        ["inicio", "Informe a data de início da validade."],
-
-        ["fim", "Informe a data de fim da validade."],
-
-        ["local", "Informe o local de emissão."],
-
-        ["autor", "Informe o nome da autoridade competente."],
-
-        ["cargo", "Informe o cargo da autoridade."],
-
-      ];
-
-      for (const [key, message] of required) {
-
-        if (!data[key]) return message;
-
+      // Carrega html2pdf.js sob demanda e garante apenas um carregamento
+      function ensureHtml2PdfLoaded() {
+        if (window.html2pdf) return Promise.resolve();
+        if (window.__html2pdfPromise) return window.__html2pdfPromise;
+        const sources = [
+          'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
+          'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js',
+          'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js'
+        ];
+        const loadScript = (url) => new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = url;
+          s.async = true;
+          s.onload = () => resolve(true);
+          s.onerror = () => reject(new Error('failed'));
+          document.head.appendChild(s);
+          // timeout de rede
+          setTimeout(() => { if (!window.html2pdf) reject(new Error('timeout')); }, 6000);
+        });
+        window.__html2pdfPromise = (async () => {
+          for (const url of sources) {
+            try { await loadScript(url); if (window.html2pdf) return; } catch (_) { /* tenta próximo */ }
+          }
+          throw new Error('html2pdf não pôde ser carregado');
+        })();
+        return window.__html2pdfPromise;
+      }
+      const STORAGE_KEY = "cert_pre_qualificacao_dados_v1";
+
+      function byId(id) { return document.getElementById(id); }
+      function getRadioValue(name) {
+        const input = document.querySelector(`input[name="${name}"]:checked`);
+        return input ? input.value : "";
+      }
+      function setRadioValue(name, value) {
+        const input = document.querySelector(`input[name="${name}"][value="${value}"]`);
+        if (input) input.checked = true;
+      }
+      function onlyDigits(value) { return (value || "").replace(/\D+/g, ""); }
+      function formatCnpj(raw) {
+        const digits = onlyDigits(raw).slice(0, 14);
+        const parts = [];
+        if (digits.length > 0) parts.push(digits.slice(0, 2));
+        if (digits.length > 2) parts.push(digits.slice(2, 5));
+        if (digits.length > 5) parts.push(digits.slice(5, 8));
+        let suffix = "";
+        if (digits.length > 8) suffix = digits.slice(8, 12) + (digits.length > 12 ? "-" + digits.slice(12, 14) : "");
+        const main = parts.join(".");
+        return main + (digits.length > 8 ? "/" + suffix : "");
+      }
+      function isValidCnpj(raw) {
+        const digits = onlyDigits(raw);
+        if (digits.length !== 14) return false;
+        // Validação básica (comprimento) + rejeita repetidos
+        if (/^(\d)\1{13}$/.test(digits)) return false;
+        // Cálculo dos dígitos verificadores
+        const calc = (base) => {
+          let size = base.length;
+          let numbers = base.split("");
+          let sum = 0;
+          let pos = size - 7;
+          for (let i = size; i >= 1; i--) {
+            sum += parseInt(numbers[size - i], 10) * pos--;
+            if (pos < 2) pos = 9;
+          }
+          let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+          return result;
+        };
+        const base12 = digits.substring(0, 12);
+        const d1 = calc(base12);
+        const d2 = calc(base12 + d1);
+        return digits.endsWith(String(d1) + String(d2));
       }
 
-
-
-      // CNPJ válido
-
-      if (!isValidCnpj(data.cnpj)) return "CNPJ inválido. Verifique os dígitos informados.";
-
-
-
-      // Datas e limites de validade
-
-      const dInicio = parseISO(data.inicio);
-
-      const dFim = parseISO(data.fim);
-
-      if (!dInicio || !dFim) return "Datas de validade inválidas.";
-
-      if (dFim < dInicio) return "A data de fim não pode ser anterior ao início.";
-
-      const maxFim = addDays(dInicio, 365); // máximo 1 ano
-
-      if (dFim > maxFim) return "A validade máxima é de 1 ano a partir da data de início.";
-
-      return "";
-
-    }
-
-
-
-    function saveToStorage(data) {
-
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (_) { }
-
-    }
-
-    function loadFromStorage() {
-
-      try {
-
-        const raw = localStorage.getItem(STORAGE_KEY);
-
-        return raw ? JSON.parse(raw) : null;
-
-      } catch (_) { return null; }
-
-    }
-
-    function clearStorage() { try { localStorage.removeItem(STORAGE_KEY); } catch (_) { } }
-
-
-
-    function fillForm(data) {
-
-      if (!data) return;
-
-      byId("orgao").value = data.orgao || "";
-
-      byId("processo").value = data.processo || "";
-
-      byId("edital").value = data.edital || "";
-
-      byId("regulamentacao").value = data.regulamentacao || "";
-
-      if (data.natureza) setRadioValue("natureza", data.natureza);
-
-      if (data.abrangencia) setRadioValue("abrangencia", data.abrangencia);
-
-      byId("razao").value = data.razao || "";
-
-      byId("cnpj").value = formatCnpj(data.cnpj || "");
-
-      byId("segmento").value = data.segmento || "";
-
-      byId("inicio").value = data.inicio || "";
-
-      byId("fim").value = data.fim || "";
-
-      byId("local").value = data.local || "";
-
-      byId("autor").value = data.autor || "";
-
-      byId("cargo").value = data.cargo || "";
-
-      byId("linkPublico").value = data.linkPublico || "";
-
-      if (data.logoDataUrl) setLogoPreview(data.logoDataUrl);
-
-    }
-
-
-
-    function setLogoPreview(dataUrl) {
-
-      const previewBox = document.querySelector('.logo-preview');
-
-      const certLogo = byId('certLogo');
-
-      const fileInput = byId('logo');
-
-      previewBox.innerHTML = dataUrl ? `<img alt="Logomarca" src="${dataUrl}" />` : '<span style="font-size:11px;color:#6b7280">Sem logo</span>';
-
-      certLogo.innerHTML = dataUrl ? `<img alt="Logomarca" src="${dataUrl}" />` : '';
-
-      if (dataUrl) fileInput.dataset.preview = dataUrl; else delete fileInput.dataset.preview;
-
-    }
-
-
-
-    function generateCertificate(data) {
-
-      // Cabeçalho
-
-      byId('certOrgao').textContent = data.orgao || '';
-
-      const periodo = `${formatDateBR(data.inicio)} a ${formatDateBR(data.fim)}`;
-
-      byId('certSubhead').textContent = `Validade: ${periodo}`;
-
-
-
-      // Modelo textual
-
-      byId('valRegulamentacaoTxt').textContent = data.regulamentacao || '—';
-
-      byId('valProcessoTxt').textContent = data.processo ? 'do ' : '';
-
-      byId('valProcesso2').textContent = data.processo || '—';
-
-      byId('valEditalTxt').textContent = data.edital ? `, Edital de Pré-Qualificação nº ${data.edital}` : '';
-
-      byId('valRazaoTxt').textContent = data.razao || '—';
-
-      byId('valCnpjTxt').textContent = formatCnpj(data.cnpj) || '—';
-
-      byId('valNaturezaTxt').textContent = data.natureza || '—';
-
-      byId('valAbrangenciaTxt').textContent = data.abrangencia || '—';
-
-      byId('valSegmentoTxt').textContent = data.segmento || '—';
-
-      byId('valInicioTxt').textContent = formatDateBR(data.inicio) || '—';
-
-      byId('valFimTxt').textContent = formatDateBR(data.fim) || '—';
-
-      byId('valLocalDataTxt').textContent = `${data.local || ''}, ${formatDateBR(data.inicio)}`;
-
-
-
-      // Assinaturas
-
-      byId('valAutor').textContent = data.autor || '';
-
-      byId('valCargo').textContent = data.cargo || '';
-
-
-
-      // Links
-
-      const hasPublic = !!data.linkPublico;
-
-      const showLinks = hasPublic;
-
-      byId('linksBloco').style.display = showLinks ? 'block' : 'none';
-
-      if (hasPublic) {
-
-        byId('valLinkPublico').textContent = data.linkPublico;
-
-        byId('valLinkPublico').href = data.linkPublico;
-
+      function formatDateBR(isoDate) {
+        if (!isoDate) return "";
+        const [y, m, d] = isoDate.split("-").map(Number);
+        if (!y || !m || !d) return "";
+        return String(d).padStart(2, "0") + "/" + String(m).padStart(2, "0") + "/" + y;
+      }
+      function parseISO(dateStr) { return dateStr ? new Date(dateStr + "T00:00:00") : null; }
+      function addDays(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
+      function toISODate(date) { return date.toISOString().slice(0, 10); }
+
+      function showError(msg) {
+        const el = byId("formError");
+        el.textContent = msg;
+        el.style.display = msg ? "block" : "none";
       }
 
+      function collectForm() {
+        return {
+          orgao: byId("orgao").value.trim(),
+          processo: byId("processo").value.trim(),
+          edital: byId("edital").value.trim(),
+          regulamentacao: byId("regulamentacao").value.trim(),
+          natureza: getRadioValue("natureza"),
+          abrangencia: getRadioValue("abrangencia"),
+          razao: byId("razao").value.trim(),
+          cnpj: byId("cnpj").value.trim(),
+          segmento: byId("segmento").value.trim(),
+          inicio: byId("inicio").value,
+          fim: byId("fim").value,
+          local: byId("local").value.trim(),
+          autor: byId("autor").value.trim(),
+          cargo: byId("cargo").value.trim(),
+          linkPublico: byId("linkPublico").value.trim(),
+          logoDataUrl: byId("logo").dataset.preview || ""
+        };
+      }
 
-
-
-
-      // Logo
-
-      setLogoPreview(data.logoDataUrl || '');
-
-
-
-      // Mostrar certificado
-
-      byId('certWrapper').style.display = 'block';
-
-      // Rolar até o certificado
-
-      setTimeout(() => {
-
-        byId('certWrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      }, 50);
-
-    }
-
-
-
-    function updateFimMinMax() {
-
-      const inicio = byId('inicio').value;
-
-      const fim = byId('fim');
-
-      if (!inicio) { fim.min = ''; fim.max = ''; return; }
-
-      const dInicio = parseISO(inicio);
-
-      const min = toISODate(dInicio);
-
-      const max = toISODate(addDays(dInicio, 365));
-
-      fim.min = min;
-
-      fim.max = max;
-
-      if (fim.value && (fim.value < min || fim.value > max)) fim.value = '';
-
-    }
-
-
-
-    document.addEventListener('DOMContentLoaded', () => {
-
-      async function generatePdfFromCertificate() {
-
-        await ensureHtml2PdfLoaded();
-
-        const source = byId('certificado');
-
-        if (!source) return;
-
-
-
-        // Clona o certificado e renderiza offscreen para evitar piscar a UI
-
-        const wrapper = document.createElement('div');
-
-        wrapper.style.position = 'fixed';
-
-        wrapper.style.left = '-10000px';
-
-        wrapper.style.top = '0';
-
-        wrapper.style.width = '210mm';
-
-        wrapper.style.background = '#ffffff';
-
-        const clone = source.cloneNode(true);
-
-        // Garante fundo branco e texto escuro no clone
-
-        clone.style.background = '#ffffff';
-
-        clone.style.color = '#000000';
-
-        wrapper.appendChild(clone);
-
-        document.body.appendChild(wrapper);
-
-
-
-        // Aguarda fontes e imagens do clone (evita PDF em branco)
-
-        if (document.fonts && document.fonts.ready) {
-
-          try { await document.fonts.ready; } catch (_) { }
-
+      function validateData(data) {
+        // Campos obrigatórios
+        const required = [
+          ["orgao", "Informe o órgão/entidade emissora."],
+          ["processo", "Informe o número do processo administrativo."],
+          ["natureza", "Selecione a natureza da pré-qualificação."],
+          ["abrangencia", "Selecione a abrangência (Total ou Parcial)."],
+          ["razao", "Informe a razão social."],
+          ["cnpj", "Informe o CNPJ."],
+          ["inicio", "Informe a data de início da validade."],
+          ["fim", "Informe a data de fim da validade."],
+          ["local", "Informe o local de emissão."],
+          ["autor", "Informe o nome da autoridade competente."],
+          ["cargo", "Informe o cargo da autoridade."],
+        ];
+        for (const [key, message] of required) {
+          if (!data[key]) return message;
         }
 
-        const waitForImages = async (root) => {
+        // CNPJ válido
+        if (!isValidCnpj(data.cnpj)) return "CNPJ inválido. Verifique os dígitos informados.";
 
-          const images = Array.from(root.querySelectorAll('img'));
+        // Datas e limites de validade
+        const dInicio = parseISO(data.inicio);
+        const dFim = parseISO(data.fim);
+        if (!dInicio || !dFim) return "Datas de validade inválidas.";
+        if (dFim < dInicio) return "A data de fim não pode ser anterior ao início.";
+        const maxFim = addDays(dInicio, 365); // máximo 1 ano
+        if (dFim > maxFim) return "A validade máxima é de 1 ano a partir da data de início.";
+        return "";
+      }
 
-          await Promise.all(images.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = img.onerror = () => r(); })));
-
-        };
-
-        await waitForImages(clone);
-
-
-
-        var orgaoText = 'certificado';
-
-        var orgaoEl = byId('certOrgao');
-
-        if (orgaoEl && typeof orgaoEl.textContent === 'string') { orgaoText = orgaoEl.textContent; }
-
-        const orgao = String(orgaoText)
-
-          .replace(/[^a-zA-Z0-9 _-]+/g, '')
-
-          .slice(0, 60);
-
-
-
-        const isSmallScreen = Math.min(window.innerWidth || 0, window.innerHeight || 0) < 600;
-
-        const scaleValue = isSmallScreen ? 1.0 : Math.min(1.4, window.devicePixelRatio || 1.2);
-
-        const opt = {
-
-          margin: [10, 10, 12, 10],
-
-          filename: `Certificado-${orgao}.pdf`,
-
-          image: { type: 'jpeg', quality: 0.98 },
-
-          html2canvas: {
-
-            scale: scaleValue,
-
-            useCORS: true,
-
-            scrollX: 0,
-
-            scrollY: 0,
-
-            backgroundColor: '#ffffff'
-
-          },
-
-          pagebreak: { mode: ['css', 'legacy'], avoid: ['.cert-header', '.cert-block', '.sign', '.item'] },
-
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-
-        };
-
-
-
+      function saveToStorage(data) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (_) {}
+      }
+      function loadFromStorage() {
         try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (_) { return null; }
+      }
+      function clearStorage() { try { localStorage.removeItem(STORAGE_KEY); } catch (_) {} }
 
-          // pequena pausa para o layout do clone estabilizar
+      function fillForm(data) {
+        if (!data) return;
+        byId("orgao").value = data.orgao || "";
+        byId("processo").value = data.processo || "";
+        byId("edital").value = data.edital || "";
+        byId("regulamentacao").value = data.regulamentacao || "";
+        if (data.natureza) setRadioValue("natureza", data.natureza);
+        if (data.abrangencia) setRadioValue("abrangencia", data.abrangencia);
+        byId("razao").value = data.razao || "";
+        byId("cnpj").value = formatCnpj(data.cnpj || "");
+        byId("segmento").value = data.segmento || "";
+        byId("inicio").value = data.inicio || "";
+        byId("fim").value = data.fim || "";
+        byId("local").value = data.local || "";
+        byId("autor").value = data.autor || "";
+        byId("cargo").value = data.cargo || "";
+        byId("linkPublico").value = data.linkPublico || "";
+        if (data.logoDataUrl) setLogoPreview(data.logoDataUrl);
+      }
 
-          await new Promise(r => setTimeout(r, 150));
+      function setLogoPreview(dataUrl) {
+        const previewBox = document.querySelector('.logo-preview');
+        const certLogo = byId('certLogo');
+        const fileInput = byId('logo');
+        previewBox.innerHTML = dataUrl ? `<img alt="Logomarca" src="${dataUrl}" />` : '<span style="font-size:11px;color:#6b7280">Sem logo</span>';
+        certLogo.innerHTML = dataUrl ? `<img alt="Logomarca" src="${dataUrl}" />` : '';
+        if (dataUrl) fileInput.dataset.preview = dataUrl; else delete fileInput.dataset.preview;
+      }
+
+      function generateCertificate(data) {
+        // Cabeçalho
+        byId('certOrgao').textContent = data.orgao || '';
+        const periodo = `${formatDateBR(data.inicio)} a ${formatDateBR(data.fim)}`;
+        byId('certSubhead').textContent = `Validade: ${periodo}`;
+
+        // Modelo textual
+        byId('valRegulamentacaoTxt').textContent = data.regulamentacao || '—';
+        byId('valProcessoTxt').textContent = data.processo ? 'do ' : '';
+        byId('valProcesso2').textContent = data.processo || '—';
+        byId('valEditalTxt').textContent = data.edital ? `, Edital de Pré-Qualificação nº ${data.edital}` : '';
+        byId('valRazaoTxt').textContent = data.razao || '—';
+        byId('valCnpjTxt').textContent = formatCnpj(data.cnpj) || '—';
+        byId('valNaturezaTxt').textContent = data.natureza || '—';
+        byId('valAbrangenciaTxt').textContent = data.abrangencia || '—';
+        byId('valSegmentoTxt').textContent = data.segmento || '—';
+        byId('valInicioTxt').textContent = formatDateBR(data.inicio) || '—';
+        byId('valFimTxt').textContent = formatDateBR(data.fim) || '—';
+        byId('valLocalDataTxt').textContent = `${data.local || ''}, ${formatDateBR(data.inicio)}`;
+
+        // Assinaturas
+        byId('valAutor').textContent = data.autor || '';
+        byId('valCargo').textContent = data.cargo || '';
+
+        // Links
+        const hasPublic = !!data.linkPublico;
+        const showLinks = hasPublic;
+        byId('linksBloco').style.display = showLinks ? 'block' : 'none';
+        if (hasPublic) {
+          byId('valLinkPublico').textContent = data.linkPublico;
+          byId('valLinkPublico').href = data.linkPublico;
+        }
+        
+
+        // Logo
+        setLogoPreview(data.logoDataUrl || '');
+
+        // Mostrar certificado
+        byId('certWrapper').style.display = 'block';
+        // Rolar até o certificado
+        setTimeout(() => {
+          byId('certWrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+      }
+
+      function updateFimMinMax() {
+        const inicio = byId('inicio').value;
+        const fim = byId('fim');
+        if (!inicio) { fim.min = ''; fim.max = ''; return; }
+        const dInicio = parseISO(inicio);
+        const min = toISODate(dInicio);
+        const max = toISODate(addDays(dInicio, 365));
+        fim.min = min;
+        fim.max = max;
+        if (fim.value && (fim.value < min || fim.value > max)) fim.value = '';
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        async function generatePdfFromCertificate() {
+          await ensureHtml2PdfLoaded();
+          const source = byId('certificado');
+          if (!source) return;
+
+          // Clona o certificado e renderiza offscreen para evitar piscar a UI
+          const wrapper = document.createElement('div');
+          wrapper.style.position = 'fixed';
+          wrapper.style.left = '-10000px';
+          wrapper.style.top = '0';
+          wrapper.style.width = '210mm';
+          wrapper.style.background = '#ffffff';
+          const clone = source.cloneNode(true);
+          // Garante fundo branco e texto escuro no clone
+          clone.style.background = '#ffffff';
+          clone.style.color = '#000000';
+          wrapper.appendChild(clone);
+          document.body.appendChild(wrapper);
+
+          // Aguarda fontes e imagens do clone (evita PDF em branco)
+          if (document.fonts && document.fonts.ready) {
+            try { await document.fonts.ready; } catch (_) {}
+          }
+          const waitForImages = async (root) => {
+            const images = Array.from(root.querySelectorAll('img'));
+            await Promise.all(images.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = img.onerror = () => r(); })));
+          };
+          await waitForImages(clone);
+
+          var orgaoText = 'certificado';
+          var orgaoEl = byId('certOrgao');
+          if (orgaoEl && typeof orgaoEl.textContent === 'string') { orgaoText = orgaoEl.textContent; }
+          const orgao = String(orgaoText)
+            .replace(/[^a-zA-Z0-9 _-]+/g, '')
+            .slice(0, 60);
+
+          const isSmallScreen = Math.min(window.innerWidth || 0, window.innerHeight || 0) < 600;
+          const scaleValue = isSmallScreen ? 1.0 : Math.min(1.4, window.devicePixelRatio || 1.2);
+          const opt = {
+            margin: [10, 10, 12, 10],
+            filename: `Certificado-${orgao}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+              scale: scaleValue,
+              useCORS: true,
+              scrollX: 0,
+              scrollY: 0,
+              backgroundColor: '#ffffff'
+            },
+            pagebreak: { mode: ['css', 'legacy'], avoid: ['.cert-header', '.cert-block', '.sign', '.item'] },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          };
 
           try {
-
-            // caminho padrão (mais compatível)
-
-            await window.html2pdf().from(clone).set(opt).save();
-
-          } catch (err) {
-
-            // fallback 1: gerar PDF via toPdf() e salvar manualmente
-
+            // pequena pausa para o layout do clone estabilizar
+            await new Promise(r => setTimeout(r, 150));
             try {
-
-              const worker = window.html2pdf().from(clone).set(opt).toPdf();
-
-              const pdf = await worker.get('pdf');
-
-              const arrayBuffer = pdf.output('arraybuffer');
-
-              const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-
-              if (blob.size < 1024) throw new Error('PDF vazio');
-
-              const filename = `Certificado-${orgao}.pdf`;
-
-              const nav = (window.navigator || {});
-
-              if (nav.msSaveOrOpenBlob) {
-
-                nav.msSaveOrOpenBlob(blob, filename);
-
-              } else {
-
-                const blobUrl = URL.createObjectURL(blob);
-
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-                if (isIOS) {
-
-                  window.open(blobUrl, '_blank');
-
+              // caminho padrão (mais compatível)
+              await window.html2pdf().from(clone).set(opt).save();
+            } catch (err) {
+              // fallback 1: gerar PDF via toPdf() e salvar manualmente
+              try {
+                const worker = window.html2pdf().from(clone).set(opt).toPdf();
+                const pdf = await worker.get('pdf');
+                const arrayBuffer = pdf.output('arraybuffer');
+                const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+                if (blob.size < 1024) throw new Error('PDF vazio');
+                const filename = `Certificado-${orgao}.pdf`;
+                const nav = (window.navigator || {});
+                if (nav.msSaveOrOpenBlob) {
+                  nav.msSaveOrOpenBlob(blob, filename);
                 } else {
-
-                  const a = document.createElement('a');
-
-                  a.href = blobUrl;
-
-                  a.download = filename;
-
-                  document.body.appendChild(a);
-
-                  a.click();
-
-                  a.remove();
-
+                  const blobUrl = URL.createObjectURL(blob);
+                  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                  if (isIOS) {
+                    window.open(blobUrl, '_blank');
+                  } else {
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                  }
+                  setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
                 }
-
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
-
+              } catch (e2) {
+                // fallback 2: captura via html2canvas + jsPDF
+                const canvas = await window.html2canvas(clone, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                const PDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
+                if (!PDF) throw e2;
+                const pdf = new PDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const margin = 12;
+                const maxW = pdfWidth - margin * 2;
+                const imgW = maxW;
+                const imgH = (canvas.height * imgW) / canvas.width;
+                pdf.addImage(imgData, 'JPEG', margin, margin, imgW, Math.min(imgH, pdfHeight - margin * 2), undefined, 'FAST');
+                const filename = `Certificado-${orgao}.pdf`;
+                const blob = pdf.output('blob');
+                const nav = (window.navigator || {});
+                if (nav.msSaveOrOpenBlob) {
+                  nav.msSaveOrOpenBlob(blob, filename);
+                } else {
+                  const blobUrl = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = blobUrl;
+                  a.download = filename;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                  setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
+                }
               }
-
-            } catch (e2) {
-
-              // fallback 2: captura via html2canvas + jsPDF
-
-              const canvas = await window.html2canvas(clone, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-
-              const imgData = canvas.toDataURL('image/jpeg', 0.98);
-
-              const PDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
-
-              if (!PDF) throw e2;
-
-              const pdf = new PDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-
-              const pdfWidth = pdf.internal.pageSize.getWidth();
-
-              const pdfHeight = pdf.internal.pageSize.getHeight();
-
-              const margin = 12;
-
-              const maxW = pdfWidth - margin * 2;
-
-              const imgW = maxW;
-
-              const imgH = (canvas.height * imgW) / canvas.width;
-
-              pdf.addImage(imgData, 'JPEG', margin, margin, imgW, Math.min(imgH, pdfHeight - margin * 2), undefined, 'FAST');
-
-              const filename = `Certificado-${orgao}.pdf`;
-
-              const blob = pdf.output('blob');
-
-              const nav = (window.navigator || {});
-
-              if (nav.msSaveOrOpenBlob) {
-
-                nav.msSaveOrOpenBlob(blob, filename);
-
-              } else {
-
-                const blobUrl = URL.createObjectURL(blob);
-
-                const a = document.createElement('a');
-
-                a.href = blobUrl;
-
-                a.download = filename;
-
-                document.body.appendChild(a);
-
-                a.click();
-
-                a.remove();
-
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
-
-              }
-
             }
-
+          } finally {
+            wrapper.remove();
           }
-
-        } finally {
-
-          wrapper.remove();
-
         }
+        // Carregar dados
+        const saved = loadFromStorage();
+        if (saved) fillForm(saved);
+        updateFimMinMax();
 
-      }
+        // Máscara/validação de CNPJ
+        const cnpjInput = byId('cnpj');
+        cnpjInput.addEventListener('input', () => { cnpjInput.value = formatCnpj(cnpjInput.value); });
 
+        // Datas
+        byId('inicio').addEventListener('change', updateFimMinMax);
 
+        // Upload de logomarca
+        const fileInput = byId('logo');
+        fileInput.addEventListener('change', (ev) => {
+          const file = ev.target.files && ev.target.files[0];
+          if (!file) { setLogoPreview(''); return; }
+          if (!file.type.startsWith('image/')) { alert('Selecione um arquivo de imagem.'); return; }
+          const reader = new FileReader();
+          reader.onload = (e) => { setLogoPreview(String(e.target.result)); };
+          reader.readAsDataURL(file);
+        });
+        byId('removerLogo').addEventListener('click', () => {
+          fileInput.value = '';
+          setLogoPreview('');
+        });
 
+        // Ações
+        byId('btnSalvar').addEventListener('click', () => {
+          const data = collectForm();
+          const err = validateData({ ...data, cnpj: data.cnpj || cnpjInput.value });
+          if (err) { showError(err); return; }
+          saveToStorage(data);
+          showError('');
+          alert('Dados salvos com sucesso neste dispositivo.');
+        });
 
+        byId('btnLimpar').addEventListener('click', () => {
+          if (!confirm('Deseja limpar todos os dados salvos?')) return;
+          clearStorage();
+          document.getElementById('formCert').reset();
+          setLogoPreview('');
+          showError('');
+        });
 
-      async function createCertificatePdfBlob() {
-
-        await ensureHtml2PdfLoaded();
-
-        const src = byId('certificado');
-
-        if (!src) throw new Error('Sem certificado');
-
-        
-        const wrapper = document.createElement('div');
-        wrapper.style.position = 'fixed';
-        wrapper.style.left = '-10000px';
-        wrapper.style.top = '0';
-        wrapper.style.width = '210mm';
-        wrapper.style.background = '#ffffff';
-        
-        const clone = src.cloneNode(true);
-        clone.style.background = '#ffffff';
-        clone.style.color = '#000000';
-        wrapper.appendChild(clone);
-        document.body.appendChild(wrapper);
-        
-        try {
-          if (document.fonts && document.fonts.ready) { 
-            try { await document.fonts.ready; } catch(_) {} 
-          }
-          const worker = window.html2pdf().from(clone).set({ 
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
-          }).toPdf();
-          
-          const pdf = await worker.get('pdf');
-          const arrayBuffer = pdf.output('arraybuffer');
-          return new Blob([arrayBuffer], { type: 'application/pdf' });
-        } finally {
-          wrapper.remove();
-        }
-      }
-
-      // Carregar dados
-      const saved = loadFromStorage();
-      if (saved) fillForm(saved);
-      updateFimMinMax();
-
-      // Máscara/validação de CNPJ
-      const cnpjInput = byId('cnpj');
-      cnpjInput.addEventListener('input', () => { cnpjInput.value = formatCnpj(cnpjInput.value); });
-
-      // Datas
-      byId('inicio').addEventListener('change', updateFimMinMax);
-
-      // Upload de logomarca
-      const fileInput = byId('logo');
-      fileInput.addEventListener('change', (ev) => {
-        const file = ev.target.files && ev.target.files[0];
-        if (!file) { setLogoPreview(''); return; }
-        if (!file.type.startsWith('image/')) { alert('Selecione um arquivo de imagem.'); return; }
-        const reader = new FileReader();
-        reader.onload = (e) => { setLogoPreview(String(e.target.result)); };
-        reader.readAsDataURL(file);
-      });
-
-      byId('removerLogo').addEventListener('click', () => {
-        fileInput.value = '';
-        setLogoPreview('');
-      });
-
-      // Ações
-      byId('btnSalvar').addEventListener('click', () => {
-        const data = collectForm();
-        const err = validateData({ ...data, cnpj: data.cnpj || cnpjInput.value });
-        if (err) { showError(err); return; }
-        saveToStorage(data);
-        showError('');
-        alert('Dados salvos com sucesso neste dispositivo.');
-      });
-
-      byId('btnLimpar').addEventListener('click', () => {
-        if (!confirm('Deseja limpar todos os dados salvos?')) return;
-        clearStorage();
-        document.getElementById('formCert').reset();
-        setLogoPreview('');
-        showError('');
-      });
-
-      async function submitToNetlify(data, pdfBlob) {
-        try {
-          const formData = new FormData();
-          formData.append('form-name', 'qualificados');
-          for (const [k, v] of Object.entries(data)) formData.append(k, String(v ?? ''));
-          if (pdfBlob) formData.append('arquivo', pdfBlob, `Certificado-${(data.orgao||'orgao')}.pdf`);
-          await fetch('/', { method: 'POST', body: formData });
-        } catch (_) { /* opcional: silencia erros de coleta */ }
-      }
-
-      byId('formCert').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = collectForm();
-        const err = validateData(data);
-        if (err) { showError(err); return; }
-        showError('');
-        saveToStorage(data);
-        
-        generateCertificate(data);
-        
-        try {
-          const pdfBlob = await createCertificatePdfBlob();
-          submitToNetlify({ ...data, inicio: formatDateBR(data.inicio), fim: formatDateBR(data.fim) }, pdfBlob);
-        } catch(_) {}
-      });
-
-      // Delegação de eventos para garantir clique em desktop e mobile
-      document.addEventListener('click', async (ev) => {
-        const closest = ev.target && ev.target.closest ? ev.target.closest('#btnEditar, #btnImprimir, #btnBaixarPdf') : null;
-        if (!closest) return;
-        
-        ev.preventDefault();
-        ev.stopPropagation();
-        
-        const ensureCertificateVisible = () => {
-          const wrapper = byId('certWrapper');
-          if (wrapper && wrapper.style.display === 'none') {
-            const savedData = loadFromStorage();
-            if (savedData) {
-              generateCertificate(savedData);
-            } else {
-              const data = collectForm();
-              generateCertificate(data);
-            }
-          }
-        };
-        
-        if (closest.id === 'btnEditar') {
-          try { 
-            byId('certWrapper').style.display = 'none'; 
-          } catch(_) {}
-          const container = document.querySelector('.container');
-          if (container && container.scrollIntoView) {
-            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-          return;
-        }
-        
-        if (closest.id === 'btnImprimir') {
+        async function submitToNetlify(data) {
           try {
-            ensureCertificateVisible();
-            // Aguarda um pouco para o certificado renderizar
-            setTimeout(() => { 
-              try { 
-                window.print(); 
-              } catch (err) { 
-                console.error('Erro ao imprimir:', err);
-                alert('Erro ao imprimir. Tente novamente.');
-              } 
-            }, 200);
-          } catch (err) {
-            console.error('Erro ao preparar impressão:', err);
-            alert('Erro ao preparar impressão. Tente novamente.');
-          }
-          return;
+            const formData = new FormData();
+            formData.append('form-name', 'qualificados');
+            for (const [k, v] of Object.entries(data)) formData.append(k, String(v ?? ''));
+            await fetch('/', { method: 'POST', body: formData });
+          } catch (_) { /* opcional: silencia erros de coleta */ }
         }
-        
-        if (closest.id === 'btnBaixarPdf') {
-          const btn = byId('btnBaixarPdf');
-          if (btn) btn.disabled = true;
-          
+
+        byId('formCert').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const data = collectForm();
+          const err = validateData(data);
+          if (err) { showError(err); return; }
+          showError('');
+          saveToStorage(data);
+          // coleta assíncrona (Netlify Forms). Se não estiver hospedado no Netlify, apenas ignora.
+          submitToNetlify({ ...data, inicio: formatDateBR(data.inicio), fim: formatDateBR(data.fim) });
+          generateCertificate(data);
+        });
+
+        byId('btnEditar').addEventListener('click', () => {
+          byId('certWrapper').style.display = 'none';
+          document.querySelector('.container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        byId('btnImprimir').addEventListener('click', () => window.print());
+        const btnBaixarPdf = byId('btnBaixarPdf');
+        btnBaixarPdf.addEventListener('click', async () => {
+          btnBaixarPdf.disabled = true;
           try {
-            ensureCertificateVisible();
-            // Aguarda um pouco para o certificado renderizar
-            await new Promise(resolve => setTimeout(resolve, 200));
             await generatePdfFromCertificate();
           } catch (e) {
-            console.error('Erro ao baixar PDF:', e);
-            try { 
-              window.print(); 
-              alert('Não foi possível gerar o PDF. Use a opção Imprimir e selecione "Salvar como PDF".');
-            } catch (printErr) {
-              alert('Erro ao gerar PDF. Tente novamente.');
-            }
-          } finally { 
-            if (btn) btn.disabled = false; 
+            console.error(e);
+            try { window.print(); } catch (_) {}
+            alert('Não foi possível gerar o PDF diretamente. Use a opção Imprimir e selecione "Salvar como PDF".');
+          } finally {
+            btnBaixarPdf.disabled = false;
           }
-          return;
-        }
+        });
       });
-    });
-  </script>
+    </script>
 </body>
 </html>
