@@ -1,1094 +1,2448 @@
 <!doctype html>
+
 <html lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gerador de Certificado de Pré-Qualificação — Lei nº 14.133/2021</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
-    <meta name="description" content="Gerar certificado de pré-qualificação conforme Lei nº 14.133/2021. Salva dados localmente e permite impressão em PDF." />
-    <style>
-      :root {
-        --bg: #0b1020;
-        --card: #11162a;
-        --muted: #97a1b6;
-        --text: #e6ebf5;
-        --primary: #4f8cff;
-        --primary-600: #2f6ff0;
-        --danger: #ff6b6b;
-        --ok: #0bb07b;
-        --border: #222a45;
-        --paper: #ffffff;
-        --ink: #1a1a1a;
-        --gold: #caa84a;
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Gerador de Certificado de Pré-Qualificação — Lei nº 14.133/2021</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap"
+    rel="stylesheet" />
+
+  <meta name="description"
+    content="Gerar certificado de pré-qualificação conforme Lei nº 14.133/2021. Salva dados localmente e permite impressão em PDF." />
+
+  <style>
+    :root {
+
+      --bg: #0b1020;
+
+      --card: #11162a;
+
+      --muted: #97a1b6;
+
+      --text: #e6ebf5;
+
+      --primary: #4f8cff;
+
+      --primary-600: #2f6ff0;
+
+      --danger: #ff6b6b;
+
+      --ok: #0bb07b;
+
+      --border: #222a45;
+
+      --paper: #ffffff;
+
+      --ink: #1a1a1a;
+
+      --gold: #caa84a;
+
+    }
+
+
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+
+      margin: 0;
+
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+
+      background: linear-gradient(180deg, #0b1020, #0e1430 60%, #0b1020);
+
+      color: var(--text);
+
+      overflow-x: hidden;
+
+      -webkit-font-smoothing: antialiased;
+
+      text-rendering: optimizeLegibility;
+
+    }
+
+
+
+    header {
+
+      padding: 24px 16px 8px;
+
+      text-align: center;
+
+    }
+
+    header h1 {
+
+      margin: 0 0 6px;
+
+      font-size: clamp(18px, 4.2vw, 24px);
+
+      letter-spacing: 0.3px;
+
+    }
+
+    header p {
+
+      margin: 0;
+
+      color: var(--muted);
+
+      font-size: 14px;
+
+    }
+
+
+
+    .container {
+
+      max-width: 1050px;
+
+      margin: 16px auto 64px;
+
+      padding: 0 16px 32px;
+
+      background: color-mix(in oklab, var(--card) 94%, transparent);
+
+      border: 1px solid var(--border);
+
+      border-radius: 16px;
+
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+    }
+
+
+
+    .section {
+
+      padding: 20px 16px;
+
+      border-top: 1px dashed var(--border);
+
+    }
+
+    .section:first-of-type {
+      border-top: 0;
+    }
+
+    .section h2 {
+
+      font-size: 16px;
+
+      margin: 0 0 14px;
+
+      color: var(--text);
+
+    }
+
+
+
+    .grid {
+
+      display: grid;
+
+      grid-template-columns: repeat(12, 1fr);
+
+      gap: 12px;
+
+    }
+
+    .col-12 {
+      grid-column: span 12;
+    }
+
+    .col-9 {
+      grid-column: span 9;
+    }
+
+    .col-8 {
+      grid-column: span 8;
+    }
+
+    .col-6 {
+      grid-column: span 6;
+    }
+
+    .col-4 {
+      grid-column: span 4;
+    }
+
+    .col-3 {
+      grid-column: span 3;
+    }
+
+
+
+    @media (max-width: 880px) {
+
+      .grid {
+        grid-template-columns: repeat(6, 1fr);
       }
 
-      * { box-sizing: border-box; }
-      html, body { height: 100%; }
-      body {
-        margin: 0;
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-        background: linear-gradient(180deg, #0b1020, #0e1430 60%, #0b1020);
-        color: var(--text);
-        overflow-x: hidden;
-        -webkit-font-smoothing: antialiased;
-        text-rendering: optimizeLegibility;
+      .col-9 {
+        grid-column: span 6;
       }
+
+      .col-8 {
+        grid-column: span 6;
+      }
+
+      .col-6 {
+        grid-column: span 6;
+      }
+
+      .col-4 {
+        grid-column: span 6;
+      }
+
+      .col-3 {
+        grid-column: span 6;
+      }
+
+    }
+
+
+
+    /* Melhorias gerais de quebra para conteúdos longos */
+
+    .cert-grid .value,
+    .certificate a {
+
+      word-break: break-word;
+
+      overflow-wrap: anywhere;
+
+    }
+
+
+
+    /* Ajustes para telas pequenas (mobile) */
+
+    @media (max-width: 560px) {
 
       header {
-        padding: 24px 16px 8px;
-        text-align: center;
-      }
-      header h1 {
-        margin: 0 0 6px;
-        font-size: clamp(18px, 4.2vw, 24px);
-        letter-spacing: 0.3px;
-      }
-      header p {
-        margin: 0;
-        color: var(--muted);
-        font-size: 14px;
+        padding: 18px 12px 6px;
       }
 
+      header h1 {
+        font-size: 20px;
+      }
+
+      header p {
+        font-size: 13px;
+      }
+
+
+
       .container {
-        max-width: 1050px;
-        margin: 16px auto 64px;
-        padding: 0 16px 32px;
-        background: color-mix(in oklab, var(--card) 94%, transparent);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        margin: 12px auto 48px;
+        padding: 0 12px 20px;
+        border-radius: 12px;
       }
 
       .section {
-        padding: 20px 16px;
-        border-top: 1px dashed var(--border);
+        padding: 16px 12px;
       }
-      .section:first-of-type { border-top: 0; }
-      .section h2 {
-        font-size: 16px;
-        margin: 0 0 14px;
-        color: var(--text);
-      }
+
+
 
       .grid {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        gap: 12px;
-      }
-      .col-12 { grid-column: span 12; }
-      .col-9 { grid-column: span 9; }
-      .col-8 { grid-column: span 8; }
-      .col-6 { grid-column: span 6; }
-      .col-4 { grid-column: span 4; }
-      .col-3 { grid-column: span 3; }
-
-      @media (max-width: 880px) {
-        .grid { grid-template-columns: repeat(6, 1fr); }
-        .col-9 { grid-column: span 6; }
-        .col-8 { grid-column: span 6; }
-        .col-6 { grid-column: span 6; }
-        .col-4 { grid-column: span 6; }
-        .col-3 { grid-column: span 6; }
+        grid-template-columns: 1fr;
+        gap: 10px;
       }
 
-      /* Melhorias gerais de quebra para conteúdos longos */
-      .cert-grid .value, .certificate a {
+      .col-12,
+      .col-9,
+      .col-8,
+      .col-6,
+      .col-4,
+      .col-3 {
+        grid-column: span 1;
+      }
+
+
+
+      label {
+        font-size: 13px;
+      }
+
+      input[type="text"],
+      input[type="url"],
+      input[type="date"],
+      textarea,
+      select {
+        padding: 12px 14px;
+        font-size: 16px;
+      }
+
+
+
+      .file-input {
+        grid-template-columns: 1fr;
+      }
+
+      .logo-preview {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 8px;
+      }
+
+
+
+      .actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .actions button {
+        width: 100%;
+      }
+
+      .actions button+button {
+        margin-top: 6px;
+      }
+
+
+
+      .certificate-wrapper {
+        margin: 20px auto 40px;
+        padding: 0 6px;
+      }
+
+      .certificate {
+        padding: 20px 16px;
+      }
+
+      .cert-header {
+        grid-template-columns: 64px 1fr;
+        gap: 10px;
+      }
+
+      .cert-title {
+        font-size: 20px;
+      }
+
+      .cert-law {
+        font-size: 13px;
+      }
+
+
+
+      .cert-grid {
+        grid-template-columns: 1fr;
+        gap: 6px 10px;
+      }
+
+      .cert-grid .item {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+
+      .cert-grid .item .label {
+        color: #555;
+        font-size: 13px;
+      }
+
+      .cert-grid .item .value {
         word-break: break-word;
         overflow-wrap: anywhere;
       }
 
-      /* Ajustes para telas pequenas (mobile) */
-      @media (max-width: 560px) {
-        header { padding: 18px 12px 6px; }
-        header h1 { font-size: 20px; }
-        header p { font-size: 13px; }
 
-        .container { margin: 12px auto 48px; padding: 0 12px 20px; border-radius: 12px; }
-        .section { padding: 16px 12px; }
-
-        .grid { grid-template-columns: 1fr; gap: 10px; }
-        .col-12, .col-9, .col-8, .col-6, .col-4, .col-3 { grid-column: span 1; }
-
-        label { font-size: 13px; }
-        input[type="text"], input[type="url"], input[type="date"], textarea, select { padding: 12px 14px; font-size: 16px; }
-
-        .file-input { grid-template-columns: 1fr; }
-        .logo-preview { width: 64px; height: 64px; margin-bottom: 8px; }
-
-        .actions { flex-direction: column; align-items: stretch; }
-        .actions button { width: 100%; }
-        .actions button + button { margin-top: 6px; }
-
-        .certificate-wrapper { margin: 20px auto 40px; padding: 0 6px; }
-        .certificate { padding: 20px 16px; }
-        .cert-header { grid-template-columns: 64px 1fr; gap: 10px; }
-        .cert-title { font-size: 20px; }
-        .cert-law { font-size: 13px; }
-
-        .cert-grid { grid-template-columns: 1fr; gap: 6px 10px; }
-        .cert-grid .item { grid-template-columns: 1fr; gap: 2px; }
-        .cert-grid .item .label { color: #555; font-size: 13px; }
-        .cert-grid .item .value { word-break: break-word; overflow-wrap: anywhere; }
-
-        .sign { grid-template-columns: 1fr; gap: 16px; }
-        .sign .line { margin: 24px 0 6px; }
-
-        .print-actions { flex-direction: column; align-items: stretch; }
-        .print-actions button { width: 100%; }
-
-        /* Radios mais clicáveis e empilhados */
-        .radio-group { display: grid; grid-template-columns: 1fr; gap: 8px; }
-        .radio-group label { padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: #0f1530; }
-        .radio-group input[type="radio"] { transform: scale(1.15); }
-
-        .cert-seal { position: static; width: 84px; height: 84px; margin: 12px auto 0; }
-      }
-
-      label {
-        display: block;
-        font-size: 13px;
-        color: var(--muted);
-        margin: 6px 0 6px 2px;
-      }
-      input[type="text"], input[type="url"], input[type="date"], textarea, select {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid var(--border);
-        background: #0f1530;
-        color: var(--text);
-        border-radius: 10px;
-        outline: none;
-        transition: 0.2s border, 0.2s box-shadow;
-      }
-      textarea { min-height: 80px; resize: vertical; }
-      input::placeholder, textarea::placeholder { color: #7884a4; }
-      input:focus, textarea:focus, select:focus {
-        border-color: color-mix(in oklab, var(--primary) 70%, white);
-        box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.2);
-      }
-
-      .file-input {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 12px;
-        align-items: center;
-        padding: 10px;
-        border: 1px dashed var(--border);
-        border-radius: 10px;
-        background: #0f1530;
-      }
-      .file-input input[type="file"] { width: 100%; }
-      .logo-preview { width: 72px; height: 72px; border-radius: 8px; background: #0b1022; border: 1px solid var(--border); display: grid; place-items: center; overflow: hidden; }
-      .logo-preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
-
-      .radio-group { display: flex; gap: 16px; flex-wrap: wrap; }
-      .radio-group label { margin: 0; display: inline-flex; align-items: center; gap: 6px; }
-
-      .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
-      button {
-        background: var(--primary);
-        border: 1px solid color-mix(in oklab, var(--primary) 90%, black);
-        color: white;
-        padding: 10px 14px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: 600;
-        letter-spacing: 0.2px;
-        transition: 0.15s transform, 0.15s background, 0.15s opacity;
-        min-height: 44px; /* alvo de toque */
-      }
-      button:hover { background: var(--primary-600); }
-      button.secondary { background: transparent; color: var(--text); border-color: var(--border); }
-      button.ghost { background: transparent; color: var(--muted); border-color: transparent; }
-      button.danger { background: var(--danger); border-color: #e85a5a; }
-      button:disabled { opacity: 0.6; cursor: not-allowed; }
-
-      .helper {
-        color: var(--muted);
-        font-size: 12px;
-        margin-top: 4px;
-      }
-
-      .error {
-        color: var(--danger);
-        font-size: 13px;
-        margin: 8px 0 0;
-      }
-
-      /* Certificado (modo visualização/print) */
-      .certificate-wrapper {
-        display: none;
-        margin: 32px auto 64px;
-        max-width: 900px;
-        position: relative;
-      }
-      .certificate {
-        background: var(--paper);
-        color: var(--ink);
-        position: relative;
-        border-radius: 10px;
-        padding: clamp(16px, 4.2vw, 36px) clamp(16px, 4.8vw, 40px);
-        padding-bottom: calc(clamp(16px, 4.2vw, 36px) + 120px);
-        box-shadow: 0 12px 40px rgba(0,0,0,0.25);
-        font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell;
-        overflow: hidden;
-      }
-      .certificate::before, .certificate::after {
-        content: "";
-        position: absolute;
-        inset: 8px;
-        border: 1.5px solid rgba(0,0,0,0.08);
-        border-radius: 8px;
-        pointer-events: none;
-      }
-      .certificate::after {
-        inset: 16px;
-        border: 2px solid color-mix(in oklab, var(--gold) 80%, #b7924d);
-        border-radius: 6px;
-        opacity: 0.9;
-      }
-      .cert-header { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: center; margin-bottom: 12px; }
-      .cert-header .cert-logo { width: 96px; height: 96px; border: 1px solid #eee; border-radius: 8px; overflow: hidden; display: grid; place-items: center; background: #fafafa; }
-      .cert-header .cert-logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
-      .cert-header h3 { margin: 0; font-size: clamp(18px, 4.2vw, 20px); line-height: 1.35; font-weight: 700; font-family: "Cormorant Garamond", serif; letter-spacing: 0.2px; }
-      .cert-sub { color: #565656; margin: 0; font-size: 13px; display: none; }
-
-      .cert-title {
-        text-align: center;
-        font-size: clamp(22px, 5.4vw, 32px);
-        font-weight: 700;
-        font-family: "Cormorant Garamond", serif;
-        margin: 10px 0 8px;
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        color: #1a1a1a;
-      }
-      .cert-title::after {
-        content: "";
-        display: block;
-        width: 120px; height: 2px;
-        margin: 8px auto 0;
-        background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--gold) 85%, #b7924d), transparent);
-      }
-      .cert-law { text-align: center; color: #444; font-size: clamp(12px, 3.5vw, 14px); margin: 6px 0 16px; letter-spacing: 0.3px; }
-
-      /* Seções no corpo do certificado (modelo textual) */
-      .cert-body { margin-top: 8px; }
-      .cert-body p { margin: 8px 0; line-height: 1.6; }
-      .cert-section { margin-top: 14px; }
-      .cert-section h4 {
-        margin: 0 0 6px;
-        font-family: "Source Sans 3", system-ui, -apple-system;
-        font-weight: 700;
-        font-size: 14px;
-        letter-spacing: 0.2px;
-        text-transform: uppercase;
-        color: #1a1a1a;
-      }
-      .cert-date { text-align: right; margin-top: 22px; }
-      .cert-footnote { margin-top: 12px; font-size: 12px; color: #555; text-align: center; }
-      .cert-footnote a { color: inherit; text-decoration: underline; }
-      /* Oculta grid antiga para focar no modelo textual */
-      .cert-grid { display: none; }
-
-      .cert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px 16px; margin-top: 8px; }
-      .cert-grid .item { display: grid; grid-template-columns: minmax(140px, 220px) 1fr; gap: 8px; align-items: baseline; }
-      .cert-grid .item .label { color: #555; font-weight: 600; }
-      .cert-grid .item .value { font-weight: 600; color: #111; }
-
-      .cert-block { margin-top: 16px; padding-top: 10px; border-top: 1px dashed #e2e2e2; }
-      .cert-block p { margin: 6px 0; }
 
       .sign {
-        margin-top: 24px;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .sign .line {
+        margin: 24px 0 6px;
+      }
+
+
+
+      .print-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .print-actions button {
+        width: 100%;
+      }
+
+
+
+      /* Radios mais clicáveis e empilhados */
+
+      .radio-group {
         display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .radio-group label {
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #0f1530;
+      }
+
+      .radio-group input[type="radio"] {
+        transform: scale(1.15);
+      }
+
+
+
+      .cert-seal {
+        position: static;
+        width: 84px;
+        height: 84px;
+        margin: 12px auto 0;
+      }
+
+    }
+
+
+
+    label {
+
+      display: block;
+
+      font-size: 13px;
+
+      color: var(--muted);
+
+      margin: 6px 0 6px 2px;
+
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="date"],
+    textarea,
+    select {
+
+      width: 100%;
+
+      padding: 10px 12px;
+
+      border: 1px solid var(--border);
+
+      background: #0f1530;
+
+      color: var(--text);
+
+      border-radius: 10px;
+
+      outline: none;
+
+      transition: 0.2s border, 0.2s box-shadow;
+
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #7884a4;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+
+      border-color: color-mix(in oklab, var(--primary) 70%, white);
+
+      box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.2);
+
+    }
+
+
+
+    .file-input {
+
+      display: grid;
+
+      grid-template-columns: auto 1fr;
+
+      gap: 12px;
+
+      align-items: center;
+
+      padding: 10px;
+
+      border: 1px dashed var(--border);
+
+      border-radius: 10px;
+
+      background: #0f1530;
+
+    }
+
+    .file-input input[type="file"] {
+      width: 100%;
+    }
+
+    .logo-preview {
+      width: 72px;
+      height: 72px;
+      border-radius: 8px;
+      background: #0b1022;
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .logo-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+
+
+    .radio-group {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .radio-group label {
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    button {
+
+      background: var(--primary);
+
+      border: 1px solid color-mix(in oklab, var(--primary) 90%, black);
+
+      color: white;
+
+      padding: 10px 14px;
+
+      border-radius: 10px;
+
+      cursor: pointer;
+
+      font-weight: 600;
+
+      letter-spacing: 0.2px;
+
+      transition: 0.15s transform, 0.15s background, 0.15s opacity;
+
+      min-height: 44px;
+      /* alvo de toque */
+
+    }
+
+    button:hover {
+      background: var(--primary-600);
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    button.ghost {
+      background: transparent;
+      color: var(--muted);
+      border-color: transparent;
+    }
+
+    button.danger {
+      background: var(--danger);
+      border-color: #e85a5a;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+
+
+    .helper {
+
+      color: var(--muted);
+
+      font-size: 12px;
+
+      margin-top: 4px;
+
+    }
+
+
+
+    .error {
+
+      color: var(--danger);
+
+      font-size: 13px;
+
+      margin: 8px 0 0;
+
+    }
+
+
+
+    /* Certificado (modo visualização/print) */
+
+    .certificate-wrapper {
+
+      display: none;
+
+      margin: 32px auto 64px;
+
+      max-width: 900px;
+
+      position: relative;
+
+    }
+
+    .certificate {
+
+      background: var(--paper);
+
+      color: var(--ink);
+
+      position: relative;
+
+      border-radius: 10px;
+
+      padding: clamp(16px, 4.2vw, 36px) clamp(16px, 4.8vw, 40px);
+
+      padding-bottom: calc(clamp(16px, 4.2vw, 36px) + 120px);
+
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+
+      font-family: "Source Sans 3", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell;
+
+      overflow: hidden;
+
+    }
+
+    .certificate::before,
+    .certificate::after {
+
+      content: "";
+
+      position: absolute;
+
+      inset: 8px;
+
+      border: 1.5px solid rgba(0, 0, 0, 0.08);
+
+      border-radius: 8px;
+
+      pointer-events: none;
+
+    }
+
+    .certificate::after {
+
+      inset: 16px;
+
+      border: 2px solid color-mix(in oklab, var(--gold) 80%, #b7924d);
+
+      border-radius: 6px;
+
+      opacity: 0.9;
+
+    }
+
+    .cert-header {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .cert-header .cert-logo {
+      width: 96px;
+      height: 96px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      background: #fafafa;
+    }
+
+    .cert-header .cert-logo img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .cert-header h3 {
+      margin: 0;
+      font-size: clamp(18px, 4.2vw, 20px);
+      line-height: 1.35;
+      font-weight: 700;
+      font-family: "Cormorant Garamond", serif;
+      letter-spacing: 0.2px;
+    }
+
+    .cert-sub {
+      color: #565656;
+      margin: 0;
+      font-size: 13px;
+      display: none;
+    }
+
+
+
+    .cert-title {
+
+      text-align: center;
+
+      font-size: clamp(22px, 5.4vw, 32px);
+
+      font-weight: 700;
+
+      font-family: "Cormorant Garamond", serif;
+
+      margin: 10px 0 8px;
+
+      text-transform: uppercase;
+
+      letter-spacing: 1.2px;
+
+      color: #1a1a1a;
+
+    }
+
+    .cert-title::after {
+
+      content: "";
+
+      display: block;
+
+      width: 120px;
+      height: 2px;
+
+      margin: 8px auto 0;
+
+      background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--gold) 85%, #b7924d), transparent);
+
+    }
+
+    .cert-law {
+      text-align: center;
+      color: #444;
+      font-size: clamp(12px, 3.5vw, 14px);
+      margin: 6px 0 16px;
+      letter-spacing: 0.3px;
+    }
+
+
+
+    /* Seções no corpo do certificado (modelo textual) */
+
+    .cert-body {
+      margin-top: 8px;
+    }
+
+    .cert-body p {
+      margin: 8px 0;
+      line-height: 1.6;
+    }
+
+    .cert-section {
+      margin-top: 14px;
+    }
+
+    .cert-section h4 {
+
+      margin: 0 0 6px;
+
+      font-family: "Source Sans 3", system-ui, -apple-system;
+
+      font-weight: 700;
+
+      font-size: 14px;
+
+      letter-spacing: 0.2px;
+
+      text-transform: uppercase;
+
+      color: #1a1a1a;
+
+    }
+
+    .cert-date {
+      text-align: right;
+      margin-top: 22px;
+    }
+
+    .cert-footnote {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #555;
+      text-align: center;
+    }
+
+    .cert-footnote a {
+      color: inherit;
+      text-decoration: underline;
+    }
+
+    /* Oculta grid antiga para focar no modelo textual */
+
+    .cert-grid {
+      display: none;
+    }
+
+
+
+    .cert-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 8px 16px;
+      margin-top: 8px;
+    }
+
+    .cert-grid .item {
+      display: grid;
+      grid-template-columns: minmax(140px, 220px) 1fr;
+      gap: 8px;
+      align-items: baseline;
+    }
+
+    .cert-grid .item .label {
+      color: #555;
+      font-weight: 600;
+    }
+
+    .cert-grid .item .value {
+      font-weight: 600;
+      color: #111;
+    }
+
+
+
+    .cert-block {
+      margin-top: 16px;
+      padding-top: 10px;
+      border-top: 1px dashed #e2e2e2;
+    }
+
+    .cert-block p {
+      margin: 6px 0;
+    }
+
+
+
+    .sign {
+
+      margin-top: 24px;
+
+      display: grid;
+
+      grid-template-columns: 1fr 1fr;
+
+      gap: 24px;
+
+    }
+
+    .sign .slot {
+      text-align: center;
+    }
+
+    .sign .line {
+      margin: 32px 0 6px;
+      height: 1px;
+      background: #333;
+      opacity: 0.8;
+    }
+
+    .sign .name {
+      font-weight: 700;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 16px;
+      letter-spacing: 0.3px;
+    }
+
+    .sign .role {
+      color: #444;
+      font-size: 14px;
+    }
+
+
+
+    .print-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin: 12px 0 8px;
+      position: relative;
+      z-index: 5;
+      pointer-events: auto;
+    }
+
+
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 24px 12px;
+    }
+
+
+
+    /* (Selo removido) */
+
+
+
+    @media print {
+
+      html,
+      body {
+        background: var(--paper) !important;
+        height: auto;
+        overflow: visible;
+      }
+
+      header,
+      .container,
+      .actions,
+      .print-hide,
+      footer {
+        display: none !important;
+      }
+
+      .certificate-wrapper {
+        display: block !important;
+        margin: 0;
+        padding: 0;
+      }
+
+      .certificate {
+
+        box-shadow: none;
+        border: 0;
+
+        width: 100%;
+        max-width: 190mm;
+        margin: 0 auto;
+
+        padding: 12mm;
+
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+
+        font-size: 11pt;
+        line-height: 1.45;
+
+      }
+
+      .cert-header,
+      .cert-block,
+      .sign,
+      .cert-grid .item {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .cert-title {
+        font-size: 16pt;
+      }
+
+      .cert-law {
+        font-size: 10pt;
+      }
+
+      .cert-header h3 {
+        font-size: 12pt;
+      }
+
+      .cert-grid {
+        display: none !important;
+      }
+
+      .sign {
         grid-template-columns: 1fr 1fr;
-        gap: 24px;
-      }
-      .sign .slot { text-align: center; }
-      .sign .line { margin: 32px 0 6px; height: 1px; background: #333; opacity: 0.8; }
-      .sign .name { font-weight: 700; font-family: "Cormorant Garamond", serif; font-size: 16px; letter-spacing: 0.3px; }
-      .sign .role { color: #444; font-size: 14px; }
-
-      .print-actions { display: flex; gap: 10px; justify-content: flex-end; margin: 12px 0 8px; position: relative; z-index: 5; pointer-events: auto; }
-      .print-actions button { pointer-events: auto; }
-      .certificate { position: relative; z-index: 1; }
-
-      footer { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 12px; }
-
-      /* (Selo removido) */
-
-      @media print {
-        html, body { background: var(--paper) !important; height: auto; overflow: visible; }
-        header, .container, .actions, .print-hide, footer { display: none !important; }
-        .certificate-wrapper { display: block !important; margin: 0; padding: 0; }
-        .certificate {
-          box-shadow: none; border: 0;
-          width: 100%; max-width: 190mm; margin: 0 auto;
-          padding: 12mm;
-          -webkit-print-color-adjust: exact; print-color-adjust: exact;
-          font-size: 11pt; line-height: 1.45;
-        }
-        .cert-header, .cert-block, .sign, .cert-grid .item { break-inside: avoid; page-break-inside: avoid; }
-        .cert-title { font-size: 16pt; }
-        .cert-law { font-size: 10pt; }
-        .cert-header h3 { font-size: 12pt; }
-        .cert-grid { display: none !important; }
-        .sign { grid-template-columns: 1fr 1fr; gap: 16pt; }
-        @page { size: A4; margin: 12mm; }
-        /* (Selo removido na impressão) */
+        gap: 16pt;
       }
 
-      /* Classe utilitária para captura offscreen (se for usada) */
-      .capture-context .certificate { background: #ffffff; color: #000000; }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>Gerador de Certificado de Pré-Qualificação</h1>
-      <p>Preencha os campos abaixo para gerar o certificado conforme a Lei nº 14.133/2021. Pode ser atualizado a qualquer tempo.</p>
-    </header>
+      @page {
+        size: A4;
+        margin: 12mm;
+      }
 
-    <main class="container print-hide" role="main">
-      <form id="formCert" novalidate>
-        <div id="formError" class="error" style="display:none"></div>
+      /* (Selo removido na impressão) */
 
-        <section class="section">
-          <h2>1. Dados de Identificação</h2>
-          <div class="grid">
-            <div class="col-9">
-              <label for="orgao">Órgão / Entidade Emissora</label>
-              <input id="orgao" name="orgao" type="text" placeholder="Ex.: Secretaria Municipal de Administração" required />
-            </div>
-            <div class="col-3">
-              <label for="logo">Logomarca do Município/Órgão (Opcional)</label>
-              <div class="file-input">
-                <div class="logo-preview" aria-label="Pré-visualização da logomarca">
-                  <span style="font-size:11px;color:#6b7280">Sem logo</span>
-                </div>
-                <input id="logo" name="logo" type="file" accept="image/*" />
-              </div>
-              <div class="actions" style="justify-content:flex-start;margin-top:8px">
-                <button type="button" class="secondary" id="removerLogo">Remover</button>
-              </div>
-            </div>
+    }
 
-            <div class="col-6">
-              <label for="processo">Nº do Processo Administrativo</label>
-              <input id="processo" name="processo" type="text" placeholder="Ex.: 000123/2025" required />
-            </div>
-            <div class="col-6">
-              <label for="edital">Nº do Edital de Pré-Qualificação</label>
-              <input id="edital" name="edital" type="text" placeholder="Opcional" />
-            </div>
 
-            <div class="col-12">
-              <label for="regulamentacao">Regulamentação Municipal (Decreto, etc.)</label>
-              <input id="regulamentacao" name="regulamentacao" type="text" placeholder="Ex.: Decreto Municipal nº 1.234/2023 (se houver)" />
-            </div>
+
+    /* Classe utilitária para captura offscreen (se for usada) */
+
+    .capture-context .certificate {
+      background: #ffffff;
+      color: #000000;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <header>
+
+    <h1>Gerador de Certificado de Pré-Qualificação</h1>
+
+    <p>Preencha os campos abaixo para gerar o certificado conforme a Lei nº 14.133/2021. Pode ser atualizado a qualquer
+      tempo.</p>
+
+  </header>
+
+
+
+  <main class="container print-hide" role="main">
+
+    <form id="formCert" novalidate>
+
+      <div id="formError" class="error" style="display:none"></div>
+
+
+
+      <section class="section">
+
+        <h2>1. Dados de Identificação</h2>
+
+        <div class="grid">
+
+          <div class="col-9">
+
+            <label for="orgao">Órgão / Entidade Emissora</label>
+
+            <input id="orgao" name="orgao" type="text" placeholder="Ex.: Secretaria Municipal de Administração"
+              required />
+
           </div>
-        </section>
 
-        <section class="section">
-          <h2>2. Objeto e Escopo da Qualificação</h2>
-          <div class="grid">
-            <div class="col-6">
-              <label>Natureza da Pré-Qualificação</label>
-              <div class="radio-group" role="radiogroup" aria-label="Natureza da Pré-Qualificação">
-                <label><input type="radio" name="natureza" value="Subjetiva (de Licitante)" required /> Subjetiva (de Licitante)</label>
-                <label><input type="radio" name="natureza" value="Objetiva (de Bem)" /> Objetiva (de Bem)</label>
+          <div class="col-3">
+
+            <label for="logo">Logomarca do Município/Órgão (Opcional)</label>
+
+            <div class="file-input">
+
+              <div class="logo-preview" aria-label="Pré-visualização da logomarca">
+
+                <span style="font-size:11px;color:#6b7280">Sem logo</span>
+
               </div>
-            </div>
-            <div class="col-6">
-              <label>Âmbito da Abrangência (Art. 80, § 7º)</label>
-              <div class="radio-group" role="radiogroup" aria-label="Abrangência da Qualificação">
-                <label><input type="radio" name="abrangencia" value="Total" required /> Total</label>
-                <label><input type="radio" name="abrangencia" value="Parcial" /> Parcial</label>
-              </div>
+
+              <input id="logo" name="logo" type="file" accept="image/*" />
+
             </div>
 
-            <div class="col-6">
-              <label for="razao">Razão Social</label>
-              <input id="razao" name="razao" type="text" placeholder="Ex.: ACME Serviços Ltda." required />
-            </div>
-            <div class="col-6">
-              <label for="cnpj">CNPJ</label>
-              <input id="cnpj" name="cnpj" type="text" inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18" required />
-              <div class="helper">Informe um CNPJ válido (14 dígitos).</div>
+            <div class="actions" style="justify-content:flex-start;margin-top:8px">
+
+              <button type="button" class="secondary" id="removerLogo">Remover</button>
+
             </div>
 
-            <div class="col-12">
-              <label for="segmento">Segmento ou Especialidade da Qualificação</label>
-              <textarea id="segmento" name="segmento" placeholder="Descreva a especialidade, linhas de fornecimento, itens ou escopo de pré-qualificação (se aplicável)"></textarea>
-            </div>
           </div>
-        </section>
 
-        <section class="section">
-          <h2>3. Validade e Formalização</h2>
-          <div class="grid">
-            <div class="col-4">
-              <label for="inicio">Início da Validade</label>
-              <input id="inicio" name="inicio" type="date" required />
-            </div>
-            <div class="col-4">
-              <label for="fim">Fim da Validade</label>
-              <input id="fim" name="fim" type="date" required />
-              <div class="helper">Máximo de 1 ano e não superior à validade dos documentos apresentados.</div>
-            </div>
-            <div class="col-4">
-              <label for="local">Local de Emissão</label>
-              <input id="local" name="local" type="text" placeholder="Ex.: Fortaleza/CE" required />
-            </div>
 
-            <div class="col-6">
-              <label for="autor">Autoridade Competente (Nome)</label>
-              <input id="autor" name="autor" type="text" placeholder="Nome completo" required />
-            </div>
-            <div class="col-6">
-              <label for="cargo">Cargo da Autoridade</label>
-              <input id="cargo" name="cargo" type="text" placeholder="Ex.: Secretário(a) Municipal de Administração" required />
-            </div>
 
-            <div class="col-12">
-              <label for="linkPublico">Link para Consulta Pública</label>
-              <input id="linkPublico" name="linkPublico" type="url" placeholder="https://..." />
-              <div class="helper">Link para a lista de pré-qualificados no PNCP ou site oficial.</div>
-            </div>
+          <div class="col-6">
+
+            <label for="processo">Nº do Processo Administrativo</label>
+
+            <input id="processo" name="processo" type="text" placeholder="Ex.: 000123/2025" required />
+
           </div>
-        </section>
 
-        
+          <div class="col-6">
 
-        <div class="section actions">
-          <button type="submit" id="btnGerar">Gerar Certificado</button>
-          <button type="button" class="secondary" id="btnSalvar">Salvar dados</button>
-          <button type="button" class="ghost" id="btnLimpar">Limpar dados</button>
+            <label for="edital">Nº do Edital de Pré-Qualificação</label>
+
+            <input id="edital" name="edital" type="text" placeholder="Opcional" />
+
+          </div>
+
+
+
+          <div class="col-12">
+
+            <label for="regulamentacao">Regulamentação Municipal (Decreto, etc.)</label>
+
+            <input id="regulamentacao" name="regulamentacao" type="text"
+              placeholder="Ex.: Decreto Municipal nº 1.234/2023 (se houver)" />
+
+          </div>
+
         </div>
-      </form>
-    </main>
 
-    <!-- Formulário fantasma para Netlify Forms (para registro dos qualificados) -->
-    <form name="qualificados" data-netlify="true" netlify-honeypot="bot-field" hidden>
-      <input type="hidden" name="form-name" value="qualificados" />
-      <input type="text" name="orgao" />
-      <input type="text" name="processo" />
-      <input type="text" name="edital" />
-      <input type="text" name="regulamentacao" />
-      <input type="text" name="natureza" />
-      <input type="text" name="abrangencia" />
-      <input type="text" name="razao" />
-      <input type="text" name="cnpj" />
-      <input type="text" name="segmento" />
-      <input type="text" name="inicio" />
-      <input type="text" name="fim" />
-      <input type="text" name="local" />
-      <input type="text" name="autor" />
-      <input type="text" name="cargo" />
-      <input type="url" name="linkPublico" />
-      <input type="file" name="arquivo" />
-      <input type="text" name="bot-field" />
+      </section>
+
+
+
+      <section class="section">
+
+        <h2>2. Objeto e Escopo da Qualificação</h2>
+
+        <div class="grid">
+
+          <div class="col-6">
+
+            <label>Natureza da Pré-Qualificação</label>
+
+            <div class="radio-group" role="radiogroup" aria-label="Natureza da Pré-Qualificação">
+
+              <label><input type="radio" name="natureza" value="Subjetiva (de Licitante)" required /> Subjetiva (de
+                Licitante)</label>
+
+              <label><input type="radio" name="natureza" value="Objetiva (de Bem)" /> Objetiva (de Bem)</label>
+
+            </div>
+
+          </div>
+
+          <div class="col-6">
+
+            <label>Âmbito da Abrangência (Art. 80, § 7º)</label>
+
+            <div class="radio-group" role="radiogroup" aria-label="Abrangência da Qualificação">
+
+              <label><input type="radio" name="abrangencia" value="Total" required /> Total</label>
+
+              <label><input type="radio" name="abrangencia" value="Parcial" /> Parcial</label>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="col-6">
+
+            <label for="razao">Razão Social</label>
+
+            <input id="razao" name="razao" type="text" placeholder="Ex.: ACME Serviços Ltda." required />
+
+          </div>
+
+          <div class="col-6">
+
+            <label for="cnpj">CNPJ</label>
+
+            <input id="cnpj" name="cnpj" type="text" inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18"
+              required />
+
+            <div class="helper">Informe um CNPJ válido (14 dígitos).</div>
+
+          </div>
+
+
+
+          <div class="col-12">
+
+            <label for="segmento">Segmento ou Especialidade da Qualificação</label>
+
+            <textarea id="segmento" name="segmento"
+              placeholder="Descreva a especialidade, linhas de fornecimento, itens ou escopo de pré-qualificação (se aplicável)"></textarea>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <section class="section">
+
+        <h2>3. Validade e Formalização</h2>
+
+        <div class="grid">
+
+          <div class="col-4">
+
+            <label for="inicio">Início da Validade</label>
+
+            <input id="inicio" name="inicio" type="date" required />
+
+          </div>
+
+          <div class="col-4">
+
+            <label for="fim">Fim da Validade</label>
+
+            <input id="fim" name="fim" type="date" required />
+
+            <div class="helper">Máximo de 1 ano e não superior à validade dos documentos apresentados.</div>
+
+          </div>
+
+          <div class="col-4">
+
+            <label for="local">Local de Emissão</label>
+
+            <input id="local" name="local" type="text" placeholder="Ex.: Fortaleza/CE" required />
+
+          </div>
+
+
+
+          <div class="col-6">
+
+            <label for="autor">Autoridade Competente (Nome)</label>
+
+            <input id="autor" name="autor" type="text" placeholder="Nome completo" required />
+
+          </div>
+
+          <div class="col-6">
+
+            <label for="cargo">Cargo da Autoridade</label>
+
+            <input id="cargo" name="cargo" type="text" placeholder="Ex.: Secretário(a) Municipal de Administração"
+              required />
+
+          </div>
+
+
+
+          <div class="col-12">
+
+            <label for="linkPublico">Link para Consulta Pública</label>
+
+            <input id="linkPublico" name="linkPublico" type="url" placeholder="https://..." />
+
+            <div class="helper">Link para a lista de pré-qualificados no PNCP ou site oficial.</div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <div class="section actions">
+
+        <button type="submit" id="btnGerar">Gerar Certificado</button>
+
+        <button type="button" class="secondary" id="btnSalvar">Salvar dados</button>
+
+        <button type="button" class="ghost" id="btnLimpar">Limpar dados</button>
+
+      </div>
+
     </form>
 
-    <section id="certWrapper" class="certificate-wrapper">
-      <div class="print-actions print-hide">
-        <button type="button" id="btnEditar" class="secondary">Editar dados</button>
-        <button type="button" id="btnImprimir">Imprimir</button>
-        <button type="button" id="btnBaixarPdf">Baixar PDF</button>
+  </main>
+
+
+
+  <!-- Formulário fantasma para Netlify Forms (para registro dos qualificados) -->
+
+  <form name="qualificados" data-netlify="true" netlify-honeypot="bot-field" hidden>
+
+    <input type="hidden" name="form-name" value="qualificados" />
+
+    <input type="text" name="orgao" />
+
+    <input type="text" name="processo" />
+
+    <input type="text" name="edital" />
+
+    <input type="text" name="regulamentacao" />
+
+    <input type="text" name="natureza" />
+
+    <input type="text" name="abrangencia" />
+
+    <input type="text" name="razao" />
+
+    <input type="text" name="cnpj" />
+
+    <input type="text" name="segmento" />
+
+    <input type="text" name="inicio" />
+
+    <input type="text" name="fim" />
+
+    <input type="text" name="local" />
+
+    <input type="text" name="autor" />
+
+    <input type="text" name="cargo" />
+
+    <input type="url" name="linkPublico" />
+
+
+    <input type="file" name="arquivo" />
+
+    <input type="text" name="bot-field" />
+
+  </form>
+
+
+
+  <section id="certWrapper" class="certificate-wrapper">
+
+    <div class="print-actions print-hide">
+
+      <button type="button" id="btnEditar" class="secondary">Editar dados</button>
+
+      <button type="button" id="btnImprimir">Imprimir</button>
+
+      <button type="button" id="btnBaixarPdf">Baixar PDF</button>
+
+    </div>
+
+    <article class="certificate" aria-label="Certificado de Pré-Qualificação" id="certificado">
+
+      <div class="cert-header">
+
+        <div class="cert-logo" id="certLogo"></div>
+
+        <div>
+
+          <h3 id="certOrgao">Órgão / Entidade Emissora</h3>
+
+          <p class="cert-sub" id="certSubhead"></p>
+
+        </div>
+
       </div>
-      <article class="certificate" aria-label="Certificado de Pré-Qualificação" id="certificado">
-        <div class="cert-header">
-          <div class="cert-logo" id="certLogo"></div>
-          <div>
-            <h3 id="certOrgao">Órgão / Entidade Emissora</h3>
-            <p class="cert-sub" id="certSubhead"></p>
-          </div>
-        </div>
-        <div class="cert-title">Certificado de Pré-Qualificação</div>
-        <div class="cert-law">Conforme Lei nº 14.133/2021</div>
 
-        <div class="cert-block cert-body">
-          <p>
-            Certificamos, para os devidos fins, com fundamento no art. 80 da Lei nº 14.133, de 1º de abril de 2021, com observância à regulamentação municipal disposta no(a) <span id="valRegulamentacaoTxt"></span> e nos termos do(a) <span id="valProcessoTxt"></span> (Processo Administrativo nº <span id="valProcesso2"></span>)
-            <span id="valEditalTxt"></span>, que o(a) seguinte licitante/bem atende às exigências de pré-qualificação:
-          </p>
-          <p>
-            Pré-qualificado(a): <strong id="valRazaoTxt"></strong>; inscrita no CNPJ sob nº <strong id="valCnpjTxt"></strong>.
-          </p>
+      <div class="cert-title">Certificado de Pré-Qualificação</div>
 
-          <div class="cert-section">
-            <h4>1. Escopo da Qualificação</h4>
-            <p>A presente pré-qualificação é de natureza <strong id="valNaturezaTxt"></strong>, com abrangência <strong id="valAbrangenciaTxt"></strong>, cobrindo os requisitos de habilitação e/ou especificações técnicas previstos no edital.</p>
-            <p>Esta qualificação é válida para o seguinte Objeto: <span id="valSegmentoTxt"></span>.</p>
-          </div>
+      <div class="cert-law">Conforme Lei nº 14.133/2021</div>
 
-          <div class="cert-section">
-            <h4>2. Validade</h4>
-            <p>Este certificado é válido de <strong id="valInicioTxt"></strong> a <strong id="valFimTxt"></strong>, observado o prazo de validade dos documentos que lhe deram base, prevalecendo o que expirar primeiro, nos termos do art. 80, § 8º, da Lei nº 14.133/2021.</p>
-          </div>
 
-          <div class="cert-section">
-            <h4>3. Condições e Observações</h4>
-            <p>A manutenção deste certificado está condicionada à conservação de todas as condições que ensejaram a sua emissão, podendo ser suspenso ou cancelado a qualquer tempo caso o pré-qualificado deixe de atender a tais condições. A presente pré-qualificação não gera direito subjetivo à futura contratação, mas sim habilita o interessado a participar de certames futuros para o objeto aqui especificado.</p>
-          </div>
 
-          <div class="cert-date"><span id="valLocalDataTxt"></span></div>
-        </div>
+      <div class="cert-block cert-body">
 
-        <div class="sign">
-          <div class="slot">
-            <div class="line"></div>
-            <div class="name" id="valAutor"></div>
-            <div class="role" id="valCargo"></div>
-          </div>
-          <div class="slot">
-            <div class="line"></div>
-            <div class="name">Reconhecimento/Carimbo (se aplicável)</div>
-            <div class="role">—</div>
-          </div>
+        <p>
+
+          Certificamos, para os devidos fins, com fundamento no art. 80 da Lei nº 14.133, de 1º de abril de 2021, com
+          observância à regulamentação municipal disposta no(a) <span id="valRegulamentacaoTxt"></span> e nos termos
+          do(a) <span id="valProcessoTxt"></span> (Processo Administrativo nº <span id="valProcesso2"></span>)
+
+          <span id="valEditalTxt"></span>, que o(a) seguinte licitante/bem atende às exigências de pré-qualificação:
+
+        </p>
+
+        <p>
+
+          Pré-qualificado(a): <strong id="valRazaoTxt"></strong>; inscrita no CNPJ sob nº <strong
+            id="valCnpjTxt"></strong>.
+
+        </p>
+
+
+
+        <div class="cert-section">
+
+          <h4>1. Escopo da Qualificação</h4>
+
+          <p>A presente pré-qualificação é de natureza <strong id="valNaturezaTxt"></strong>, com abrangência <strong
+              id="valAbrangenciaTxt"></strong>, cobrindo os requisitos de habilitação e/ou especificações técnicas
+            previstos no edital.</p>
+
+          <p>Esta qualificação é válida para o seguinte Objeto: <span id="valSegmentoTxt"></span>.</p>
+
         </div>
 
-        <div class="cert-block cert-footnote" id="linksBloco" style="display:none">
-          <p>A lista completa e atualizada de pré-qualificados pode ser consultada publicamente no endereço:<br/>
-            <a id="valLinkPublico" href="#" target="_blank" rel="noopener noreferrer"></a>
-          </p>
+
+
+        <div class="cert-section">
+
+          <h4>2. Validade</h4>
+
+          <p>Este certificado é válido de <strong id="valInicioTxt"></strong> a <strong id="valFimTxt"></strong>,
+            observado o prazo de validade dos documentos que lhe deram base, prevalecendo o que expirar primeiro, nos
+            termos do art. 80, § 8º, da Lei nº 14.133/2021.</p>
+
         </div>
 
-        <div class="cert-block" style="font-size:12px;color:#444">
-          <p>Este certificado poderá ser atualizado a qualquer tempo. A validade aqui registrada não poderá exceder 1 (um) ano nem ultrapassar a validade dos documentos apresentados.</p>
+
+
+        <div class="cert-section">
+
+          <h4>3. Condições e Observações</h4>
+
+          <p>A manutenção deste certificado está condicionada à conservação de todas as condições que ensejaram a sua
+            emissão, podendo ser suspenso ou cancelado a qualquer tempo caso o pré-qualificado deixe de atender a tais
+            condições. A presente pré-qualificação não gera direito subjetivo à futura contratação, mas sim habilita o
+            interessado a participar de certames futuros para o objeto aqui especificado.</p>
+
         </div>
-        
-      </article>
+
+
+
+        <div class="cert-date"><span id="valLocalDataTxt"></span></div>
+
+      </div>
+
+
+
+      <div class="sign">
+
+        <div class="slot">
+
+          <div class="line"></div>
+
+          <div class="name" id="valAutor"></div>
+
+          <div class="role" id="valCargo"></div>
+
+        </div>
+
+        <div class="slot">
+
+          <div class="line"></div>
+
+          <div class="name">Reconhecimento/Carimbo (se aplicável)</div>
+
+          <div class="role">—</div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="cert-block cert-footnote" id="linksBloco" style="display:none">
+
+        <p>A lista completa e atualizada de pré-qualificados pode ser consultada publicamente no endereço:<br />
+
+          <a id="valLinkPublico" href="#" target="_blank" rel="noopener noreferrer"></a>
+
+        </p>
+
+      </div>
+
+
+
+      <div class="cert-block" style="font-size:12px;color:#444">
+
+        <p>Este certificado poderá ser atualizado a qualquer tempo. A validade aqui registrada não poderá exceder 1 (um)
+          ano nem ultrapassar a validade dos documentos apresentados.</p>
+
+      </div>
+
+
+
+    </article>
+
+  </section>
+
+
+
+  <!-- Contato (exemplo de formulário Netlify) -->
+
+  <section class="container print-hide" style="margin-top: 0;">
+
+    <section class="section">
+
+      <h2>Contato</h2>
+
+      <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+
+        <input type="hidden" name="form-name" value="contact" />
+
+        <p hidden>
+
+          <label>Não preencha: <input name="bot-field" /></label>
+
+        </p>
+
+        <p>
+
+          <label>Nome<br /><input type="text" name="name" required /></label>
+
+        </p>
+
+        <p>
+
+          <label>Email<br /><input type="email" name="email" required /></label>
+
+        </p>
+
+        <p class="actions" style="justify-content:flex-start">
+
+          <button type="submit">Enviar</button>
+
+        </p>
+
+      </form>
+
     </section>
 
-    <!-- Contato (exemplo de formulário Netlify) -->
-    <section class="container print-hide" style="margin-top: 0;">
-      <section class="section">
-        <h2>Contato</h2>
-        <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-          <input type="hidden" name="form-name" value="contact" />
-          <p hidden>
-            <label>Não preencha: <input name="bot-field" /></label>
-          </p>
-          <p>
-            <label>Nome<br /><input type="text" name="name" required /></label>
-          </p>
-          <p>
-            <label>Email<br /><input type="email" name="email" required /></label>
-          </p>
-          <p class="actions" style="justify-content:flex-start">
-            <button type="submit">Enviar</button>
-          </p>
-        </form>
-      </section>
-    </section>
+  </section>
 
-    <footer class="print-hide">
-      Desenvolvido por: <strong>Vitor Barreto</strong>
-    </footer>
+
+
+  <footer class="print-hide">
+
+    Desenvolvido por: <strong>Vitor Barreto</strong>
+
+  </footer>
+
+
 
   <script>
-      // Carrega html2pdf.js sob demanda e garante apenas um carregamento
-      function ensureHtml2PdfLoaded() {
-        if (window.html2pdf) return Promise.resolve();
-        if (window.__html2pdfPromise) return window.__html2pdfPromise;
-        const sources = [
-          'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
-          'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js',
-          'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js'
-        ];
-        const loadScript = (url) => new Promise((resolve, reject) => {
-          const s = document.createElement('script');
-          s.src = url;
-          s.async = true;
-          s.onload = () => resolve(true);
-          s.onerror = () => reject(new Error('failed'));
-          document.head.appendChild(s);
-          // timeout de rede
-          setTimeout(() => { if (!window.html2pdf) reject(new Error('timeout')); }, 6000);
-        });
-        window.__html2pdfPromise = (async () => {
-          for (const url of sources) {
-            try { await loadScript(url); if (window.html2pdf) return; } catch (_) { /* tenta próximo */ }
-          }
-          throw new Error('html2pdf não pôde ser carregado');
-        })();
-        return window.__html2pdfPromise;
-      }
-      const STORAGE_KEY = "cert_pre_qualificacao_dados_v1";
-      
 
-      function byId(id) { return document.getElementById(id); }
-      function getRadioValue(name) {
-        const input = document.querySelector(`input[name="${name}"]:checked`);
-        return input ? input.value : "";
-      }
-      function setRadioValue(name, value) {
-        const input = document.querySelector(`input[name="${name}"][value="${value}"]`);
-        if (input) input.checked = true;
-      }
-      function onlyDigits(value) { return (value || "").replace(/\D+/g, ""); }
-      function formatCnpj(raw) {
-        const digits = onlyDigits(raw).slice(0, 14);
-        const parts = [];
-        if (digits.length > 0) parts.push(digits.slice(0, 2));
-        if (digits.length > 2) parts.push(digits.slice(2, 5));
-        if (digits.length > 5) parts.push(digits.slice(5, 8));
-        let suffix = "";
-        if (digits.length > 8) suffix = digits.slice(8, 12) + (digits.length > 12 ? "-" + digits.slice(12, 14) : "");
-        const main = parts.join(".");
-        return main + (digits.length > 8 ? "/" + suffix : "");
-      }
-      function isValidCnpj(raw) {
-        const digits = onlyDigits(raw);
-        if (digits.length !== 14) return false;
-        // Validação básica (comprimento) + rejeita repetidos
-        if (/^(\d)\1{13}$/.test(digits)) return false;
-        // Cálculo dos dígitos verificadores
-        const calc = (base) => {
-          let size = base.length;
-          let numbers = base.split("");
-          let sum = 0;
-          let pos = size - 7;
-          for (let i = size; i >= 1; i--) {
-            sum += parseInt(numbers[size - i], 10) * pos--;
-            if (pos < 2) pos = 9;
-          }
-          let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-          return result;
-        };
-        const base12 = digits.substring(0, 12);
-        const d1 = calc(base12);
-        const d2 = calc(base12 + d1);
-        return digits.endsWith(String(d1) + String(d2));
-      }
+    // Carrega html2pdf.js sob demanda e garante apenas um carregamento
 
-      function formatDateBR(isoDate) {
-        if (!isoDate) return "";
-        const [y, m, d] = isoDate.split("-").map(Number);
-        if (!y || !m || !d) return "";
-        return String(d).padStart(2, "0") + "/" + String(m).padStart(2, "0") + "/" + y;
-      }
-      function parseISO(dateStr) { return dateStr ? new Date(dateStr + "T00:00:00") : null; }
-      function addDays(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
-      function toISODate(date) { return date.toISOString().slice(0, 10); }
+    function ensureHtml2PdfLoaded() {
 
-      
+      if (window.html2pdf) return Promise.resolve();
 
-      function showError(msg) {
-        const el = byId("formError");
-        el.textContent = msg;
-        el.style.display = msg ? "block" : "none";
-      }
+      if (window.__html2pdfPromise) return window.__html2pdfPromise;
 
-      function collectForm() {
-        return {
-          orgao: byId("orgao").value.trim(),
-          processo: byId("processo").value.trim(),
-          edital: byId("edital").value.trim(),
-          regulamentacao: byId("regulamentacao").value.trim(),
-          natureza: getRadioValue("natureza"),
-          abrangencia: getRadioValue("abrangencia"),
-          razao: byId("razao").value.trim(),
-          cnpj: byId("cnpj").value.trim(),
-          segmento: byId("segmento").value.trim(),
-          inicio: byId("inicio").value,
-          fim: byId("fim").value,
-          local: byId("local").value.trim(),
-          autor: byId("autor").value.trim(),
-          cargo: byId("cargo").value.trim(),
-          linkPublico: byId("linkPublico").value.trim(),
-          logoDataUrl: byId("logo").dataset.preview || ""
-        };
-      }
+      const sources = [
 
-      function validateData(data) {
-        // Campos obrigatórios
-        const required = [
-          ["orgao", "Informe o órgão/entidade emissora."],
-          ["processo", "Informe o número do processo administrativo."],
-          ["natureza", "Selecione a natureza da pré-qualificação."],
-          ["abrangencia", "Selecione a abrangência (Total ou Parcial)."],
-          ["razao", "Informe a razão social."],
-          ["cnpj", "Informe o CNPJ."],
-          ["inicio", "Informe a data de início da validade."],
-          ["fim", "Informe a data de fim da validade."],
-          ["local", "Informe o local de emissão."],
-          ["autor", "Informe o nome da autoridade competente."],
-          ["cargo", "Informe o cargo da autoridade."],
-        ];
-        for (const [key, message] of required) {
-          if (!data[key]) return message;
-        }
+        'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
 
-        // CNPJ válido
-        if (!isValidCnpj(data.cnpj)) return "CNPJ inválido. Verifique os dígitos informados.";
+        'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js',
 
-        // Datas e limites de validade
-        const dInicio = parseISO(data.inicio);
-        const dFim = parseISO(data.fim);
-        if (!dInicio || !dFim) return "Datas de validade inválidas.";
-        if (dFim < dInicio) return "A data de fim não pode ser anterior ao início.";
-        const maxFim = addDays(dInicio, 365); // máximo 1 ano
-        if (dFim > maxFim) return "A validade máxima é de 1 ano a partir da data de início.";
-        return "";
-      }
+        'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js'
 
-      function saveToStorage(data) {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (_) {}
-      }
-      function loadFromStorage() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          return raw ? JSON.parse(raw) : null;
-        } catch (_) { return null; }
-      }
-      function clearStorage() { try { localStorage.removeItem(STORAGE_KEY); } catch (_) {} }
+      ];
 
-      function fillForm(data) {
-        if (!data) return;
-        byId("orgao").value = data.orgao || "";
-        byId("processo").value = data.processo || "";
-        byId("edital").value = data.edital || "";
-        byId("regulamentacao").value = data.regulamentacao || "";
-        if (data.natureza) setRadioValue("natureza", data.natureza);
-        if (data.abrangencia) setRadioValue("abrangencia", data.abrangencia);
-        byId("razao").value = data.razao || "";
-        byId("cnpj").value = formatCnpj(data.cnpj || "");
-        byId("segmento").value = data.segmento || "";
-        byId("inicio").value = data.inicio || "";
-        byId("fim").value = data.fim || "";
-        byId("local").value = data.local || "";
-        byId("autor").value = data.autor || "";
-        byId("cargo").value = data.cargo || "";
-        byId("linkPublico").value = data.linkPublico || "";
-        if (data.logoDataUrl) setLogoPreview(data.logoDataUrl);
-      }
+      const loadScript = (url) => new Promise((resolve, reject) => {
 
-      function setLogoPreview(dataUrl) {
-        const previewBox = document.querySelector('.logo-preview');
-        const certLogo = byId('certLogo');
-        const fileInput = byId('logo');
-        previewBox.innerHTML = dataUrl ? `<img alt="Logomarca" src="${dataUrl}" />` : '<span style="font-size:11px;color:#6b7280">Sem logo</span>';
-        certLogo.innerHTML = dataUrl ? `<img alt="Logomarca" src="${dataUrl}" />` : '';
-        if (dataUrl) fileInput.dataset.preview = dataUrl; else delete fileInput.dataset.preview;
-      }
+        const s = document.createElement('script');
 
-      function generateCertificate(data) {
-        // Cabeçalho
-        byId('certOrgao').textContent = data.orgao || '';
-        const periodo = `${formatDateBR(data.inicio)} a ${formatDateBR(data.fim)}`;
-        byId('certSubhead').textContent = `Validade: ${periodo}`;
+        s.src = url;
 
-        // Modelo textual
-        byId('valRegulamentacaoTxt').textContent = data.regulamentacao || '—';
-        byId('valProcessoTxt').textContent = data.processo ? 'do ' : '';
-        byId('valProcesso2').textContent = data.processo || '—';
-        byId('valEditalTxt').textContent = data.edital ? `, Edital de Pré-Qualificação nº ${data.edital}` : '';
-        byId('valRazaoTxt').textContent = data.razao || '—';
-        byId('valCnpjTxt').textContent = formatCnpj(data.cnpj) || '—';
-        byId('valNaturezaTxt').textContent = data.natureza || '—';
-        byId('valAbrangenciaTxt').textContent = data.abrangencia || '—';
-        byId('valSegmentoTxt').textContent = data.segmento || '—';
-        byId('valInicioTxt').textContent = formatDateBR(data.inicio) || '—';
-        byId('valFimTxt').textContent = formatDateBR(data.fim) || '—';
-        byId('valLocalDataTxt').textContent = `${data.local || ''}, ${formatDateBR(data.inicio)}`;
+        s.async = true;
 
-        // Assinaturas
-        byId('valAutor').textContent = data.autor || '';
-        byId('valCargo').textContent = data.cargo || '';
+        s.onload = () => resolve(true);
 
-        // Links
-        const hasPublic = !!data.linkPublico;
-        const showLinks = hasPublic;
-        byId('linksBloco').style.display = showLinks ? 'block' : 'none';
-        if (hasPublic) {
-          byId('valLinkPublico').textContent = data.linkPublico;
-          byId('valLinkPublico').href = data.linkPublico;
-        }
-        
+        s.onerror = () => reject(new Error('failed'));
 
-        // Logo
-        setLogoPreview(data.logoDataUrl || '');
+        document.head.appendChild(s);
 
-        // Mostrar certificado
-        byId('certWrapper').style.display = 'block';
-        // Rolar até o certificado
-        setTimeout(() => {
-          byId('certWrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 50);
-      }
+        // timeout de rede
 
-      function updateFimMinMax() {
-        const inicio = byId('inicio').value;
-        const fim = byId('fim');
-        if (!inicio) { fim.min = ''; fim.max = ''; return; }
-        const dInicio = parseISO(inicio);
-        const min = toISODate(dInicio);
-        const max = toISODate(addDays(dInicio, 365));
-        fim.min = min;
-        fim.max = max;
-        if (fim.value && (fim.value < min || fim.value > max)) fim.value = '';
-      }
+        setTimeout(() => { if (!window.html2pdf) reject(new Error('timeout')); }, 6000);
 
-      document.addEventListener('DOMContentLoaded', () => {
-        async function generatePdfFromCertificate() {
-          await ensureHtml2PdfLoaded();
-          const source = byId('certificado');
-          if (!source) return;
-
-          // Clona o certificado e renderiza offscreen para evitar piscar a UI
-          const wrapper = document.createElement('div');
-          wrapper.style.position = 'fixed';
-          wrapper.style.left = '-10000px';
-          wrapper.style.top = '0';
-          wrapper.style.width = '210mm';
-          wrapper.style.background = '#ffffff';
-          const clone = source.cloneNode(true);
-          // Garante fundo branco e texto escuro no clone
-          clone.style.background = '#ffffff';
-          clone.style.color = '#000000';
-          wrapper.appendChild(clone);
-          document.body.appendChild(wrapper);
-
-          // Aguarda fontes e imagens do clone (evita PDF em branco)
-          if (document.fonts && document.fonts.ready) {
-            try { await document.fonts.ready; } catch (_) {}
-          }
-          const waitForImages = async (root) => {
-            const images = Array.from(root.querySelectorAll('img'));
-            await Promise.all(images.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = img.onerror = () => r(); })));
-          };
-          await waitForImages(clone);
-
-          var orgaoText = 'certificado';
-          var orgaoEl = byId('certOrgao');
-          if (orgaoEl && typeof orgaoEl.textContent === 'string') { orgaoText = orgaoEl.textContent; }
-          const orgao = String(orgaoText)
-            .replace(/[^a-zA-Z0-9 _-]+/g, '')
-            .slice(0, 60);
-
-          const isSmallScreen = Math.min(window.innerWidth || 0, window.innerHeight || 0) < 600;
-          const scaleValue = isSmallScreen ? 1.0 : Math.min(1.4, window.devicePixelRatio || 1.2);
-          const opt = {
-            margin: [10, 10, 12, 10],
-            filename: `Certificado-${orgao}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-              scale: scaleValue,
-              useCORS: true,
-              scrollX: 0,
-              scrollY: 0,
-              backgroundColor: '#ffffff'
-            },
-            pagebreak: { mode: ['css', 'legacy'], avoid: ['.cert-header', '.cert-block', '.sign', '.item'] },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-          };
-
-          try {
-            // pequena pausa para o layout do clone estabilizar
-            await new Promise(r => setTimeout(r, 150));
-            try {
-              // caminho padrão (mais compatível)
-              await window.html2pdf().from(clone).set(opt).save();
-            } catch (err) {
-              // fallback 1: gerar PDF via toPdf() e salvar manualmente
-              try {
-                const worker = window.html2pdf().from(clone).set(opt).toPdf();
-                const pdf = await worker.get('pdf');
-                const arrayBuffer = pdf.output('arraybuffer');
-                const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-                if (blob.size < 1024) throw new Error('PDF vazio');
-                const filename = `Certificado-${orgao}.pdf`;
-                const nav = (window.navigator || {});
-                if (nav.msSaveOrOpenBlob) {
-                  nav.msSaveOrOpenBlob(blob, filename);
-                } else {
-                  const blobUrl = URL.createObjectURL(blob);
-                  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                  if (isIOS) {
-                    window.open(blobUrl, '_blank');
-                  } else {
-                    const a = document.createElement('a');
-                    a.href = blobUrl;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                  }
-                  setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
-                }
-              } catch (e2) {
-                // fallback 2: captura via html2canvas + jsPDF
-                const canvas = await window.html2canvas(clone, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-                const imgData = canvas.toDataURL('image/jpeg', 0.98);
-                const PDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
-                if (!PDF) throw e2;
-                const pdf = new PDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-                const margin = 12;
-                const maxW = pdfWidth - margin * 2;
-                const imgW = maxW;
-                const imgH = (canvas.height * imgW) / canvas.width;
-                pdf.addImage(imgData, 'JPEG', margin, margin, imgW, Math.min(imgH, pdfHeight - margin * 2), undefined, 'FAST');
-                const filename = `Certificado-${orgao}.pdf`;
-                const blob = pdf.output('blob');
-                const nav = (window.navigator || {});
-                if (nav.msSaveOrOpenBlob) {
-                  nav.msSaveOrOpenBlob(blob, filename);
-                } else {
-                  const blobUrl = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = blobUrl;
-                  a.download = filename;
-                  document.body.appendChild(a);
-                  a.click();
-                  a.remove();
-                  setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
-                }
-              }
-            }
-          } finally {
-            wrapper.remove();
-          }
-        }
-
-        async function createCertificatePdfBlob() {
-          await ensureHtml2PdfLoaded();
-          const src = byId('certificado');
-          if (!src) throw new Error('Sem certificado');
-          const wrapper = document.createElement('div');
-          wrapper.style.position = 'fixed';
-          wrapper.style.left = '-10000px';
-          wrapper.style.top = '0';
-          wrapper.style.width = '210mm';
-          wrapper.style.background = '#ffffff';
-          const clone = src.cloneNode(true);
-          clone.style.background = '#ffffff';
-          clone.style.color = '#000000';
-          wrapper.appendChild(clone);
-          document.body.appendChild(wrapper);
-          try {
-            if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch(_) {} }
-            const worker = window.html2pdf().from(clone).set({ jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).toPdf();
-            const pdf = await worker.get('pdf');
-            const arrayBuffer = pdf.output('arraybuffer');
-            return new Blob([arrayBuffer], { type: 'application/pdf' });
-          } finally {
-            wrapper.remove();
-          }
-        }
-        // Carregar dados
-        const saved = loadFromStorage();
-        if (saved) fillForm(saved);
-        updateFimMinMax();
-
-        // Máscara/validação de CNPJ
-        const cnpjInput = byId('cnpj');
-        cnpjInput.addEventListener('input', () => { cnpjInput.value = formatCnpj(cnpjInput.value); });
-
-        // Datas
-        byId('inicio').addEventListener('change', updateFimMinMax);
-
-        // Upload de logomarca
-        const fileInput = byId('logo');
-        fileInput.addEventListener('change', (ev) => {
-          const file = ev.target.files && ev.target.files[0];
-          if (!file) { setLogoPreview(''); return; }
-          if (!file.type.startsWith('image/')) { alert('Selecione um arquivo de imagem.'); return; }
-          const reader = new FileReader();
-          reader.onload = (e) => { setLogoPreview(String(e.target.result)); };
-          reader.readAsDataURL(file);
-        });
-        byId('removerLogo').addEventListener('click', () => {
-          fileInput.value = '';
-          setLogoPreview('');
-        });
-
-        // Ações
-        byId('btnSalvar').addEventListener('click', () => {
-          const data = collectForm();
-          const err = validateData({ ...data, cnpj: data.cnpj || cnpjInput.value });
-          if (err) { showError(err); return; }
-          saveToStorage(data);
-          showError('');
-          alert('Dados salvos com sucesso neste dispositivo.');
-        });
-
-        byId('btnLimpar').addEventListener('click', () => {
-          if (!confirm('Deseja limpar todos os dados salvos?')) return;
-          clearStorage();
-          document.getElementById('formCert').reset();
-          setLogoPreview('');
-          showError('');
-        });
-
-        
-
-        async function submitToNetlify(data, pdfBlob) {
-          try {
-            const formData = new FormData();
-            formData.append('form-name', 'qualificados');
-            for (const [k, v] of Object.entries(data)) formData.append(k, String(v ?? ''));
-            if (pdfBlob) formData.append('arquivo', pdfBlob, `Certificado-${(data.orgao||'orgao')}.pdf`);
-            await fetch('/', { method: 'POST', body: formData });
-          } catch (_) { /* opcional: silencia erros de coleta */ }
-        }
-
-        byId('formCert').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const data = collectForm();
-          const err = validateData(data);
-          if (err) { showError(err); return; }
-          showError('');
-          saveToStorage(data);
-          // coleta assíncrona (Netlify Forms). Se não estiver hospedado no Netlify, apenas ignora.
-          generateCertificate(data);
-          try {
-            const pdfBlob = await createCertificatePdfBlob();
-            submitToNetlify({ ...data, inicio: formatDateBR(data.inicio), fim: formatDateBR(data.fim) }, pdfBlob);
-            // Upload para Drive removido
-          } catch(_) {}
-        });
-
-        // Delegação de eventos para garantir clique em desktop e mobile
-        document.addEventListener('click', async (ev) => {
-          const closest = ev.target && ev.target.closest ? ev.target.closest('#btnEditar, #btnImprimir, #btnBaixarPdf') : null;
-          if (!closest) return;
-          ev.preventDefault();
-          const ensureCertificateVisible = () => {
-            const wrapper = byId('certWrapper');
-            if (wrapper && wrapper.style.display === 'none') {
-              const savedData = loadFromStorage();
-              if (savedData) generateCertificate(savedData); else generateCertificate(collectForm());
-            }
-          };
-          if (closest.id === 'btnEditar') {
-            try { byId('certWrapper').style.display = 'none'; } catch(_) {}
-            const container = document.querySelector('.container');
-            if (container && container.scrollIntoView) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            return;
-          }
-          if (closest.id === 'btnImprimir') {
-            ensureCertificateVisible();
-            setTimeout(() => { try { window.print(); } catch (_) {} }, 80);
-            return;
-          }
-          if (closest.id === 'btnBaixarPdf') {
-            const btn = byId('btnBaixarPdf');
-            if (btn) btn.disabled = true;
-            try { ensureCertificateVisible(); await generatePdfFromCertificate(); }
-            catch (e) { console.error(e); try { window.print(); } catch (_) {} alert('Não foi possível gerar o PDF diretamente. Use a opção Imprimir e selecione "Salvar como PDF".'); }
-            finally { if (btn) btn.disabled = false; }
-            return;
-          }
-        });
       });
-    </script>
-  </body>
+
+      window.__html2pdfPromise = (async () => {
+
+        for (const url of sources) {
+
+          try { await loadScript(url); if (window.html2pdf) return; } catch (_) { /* tenta próximo */ }
+
+        }
+
+        throw new Error('html2pdf não pôde ser carregado');
+
+      })();
+
+      return window.__html2pdfPromise;
+
+    }
+
+    const STORAGE_KEY = "cert_pre_qualificacao_dados_v1";
+
+
+
+    function byId(id) { return document.getElementById(id); }
+
+    function getRadioValue(name) {
+
+      const input = document.querySelector(`input[name="${name}"]:checked`);
+
+      return input ? input.value : "";
+
+    }
+
+    function setRadioValue(name, value) {
+
+      const input = document.querySelector(`input[name="${name}"][value="${value}"]`);
+
+      if (input) input.checked = true;
+
+    }
+
+    function onlyDigits(value) { return (value || "").replace(/\D+/g, ""); }
+
+    function formatCnpj(raw) {
+
+      const digits = onlyDigits(raw).slice(0, 14);
+
+      const parts = [];
+
+      if (digits.length > 0) parts.push(digits.slice(0, 2));
+
+      if (digits.length > 2) parts.push(digits.slice(2, 5));
+
+      if (digits.length > 5) parts.push(digits.slice(5, 8));
+
+      let suffix = "";
+
+      if (digits.length > 8) suffix = digits.slice(8, 12) + (digits.length > 12 ? "-" + digits.slice(12, 14) : "");
+
+      const main = parts.join(".");
+
+      return main + (digits.length > 8 ? "/" + suffix : "");
+
+    }
+
+    function isValidCnpj(raw) {
+
+      const digits = onlyDigits(raw);
+
+      if (digits.length !== 14) return false;
+
+      // Validação básica (comprimento) + rejeita repetidos
+
+      if (/^(\d)\1{13}$/.test(digits)) return false;
+
+      // Cálculo dos dígitos verificadores
+
+      const calc = (base) => {
+
+        let size = base.length;
+
+        let numbers = base.split("");
+
+        let sum = 0;
+
+        let pos = size - 7;
+
+        for (let i = size; i >= 1; i--) {
+
+          sum += parseInt(numbers[size - i], 10) * pos--;
+
+          if (pos < 2) pos = 9;
+
+        }
+
+        let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+
+        return result;
+
+      };
+
+      const base12 = digits.substring(0, 12);
+
+      const d1 = calc(base12);
+
+      const d2 = calc(base12 + d1);
+
+      return digits.endsWith(String(d1) + String(d2));
+
+    }
+
+
+
+    function formatDateBR(isoDate) {
+
+      if (!isoDate) return "";
+
+      const [y, m, d] = isoDate.split("-").map(Number);
+
+      if (!y || !m || !d) return "";
+
+      return String(d).padStart(2, "0") + "/" + String(m).padStart(2, "0") + "/" + y;
+
+    }
+
+    function parseISO(dateStr) { return dateStr ? new Date(dateStr + "T00:00:00") : null; }
+
+    function addDays(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
+
+    function toISODate(date) { return date.toISOString().slice(0, 10); }
+
+
+
+    function showError(msg) {
+
+      const el = byId("formError");
+
+      el.textContent = msg;
+
+      el.style.display = msg ? "block" : "none";
+
+    }
+
+
+
+    function collectForm() {
+
+      return {
+
+        orgao: byId("orgao").value.trim(),
+
+        processo: byId("processo").value.trim(),
+
+        edital: byId("edital").value.trim(),
+
+        regulamentacao: byId("regulamentacao").value.trim(),
+
+        natureza: getRadioValue("natureza"),
+
+        abrangencia: getRadioValue("abrangencia"),
+
+        razao: byId("razao").value.trim(),
+
+        cnpj: byId("cnpj").value.trim(),
+
+        segmento: byId("segmento").value.trim(),
+
+        inicio: byId("inicio").value,
+
+        fim: byId("fim").value,
+
+        local: byId("local").value.trim(),
+
+        autor: byId("autor").value.trim(),
+
+        cargo: byId("cargo").value.trim(),
+
+        linkPublico: byId("linkPublico").value.trim(),
+
+        logoDataUrl: byId("logo").dataset.preview || ""
+
+      };
+
+    }
+
+
+
+    function validateData(data) {
+
+      // Campos obrigatórios
+
+      const required = [
+
+        ["orgao", "Informe o órgão/entidade emissora."],
+
+        ["processo", "Informe o número do processo administrativo."],
+
+        ["natureza", "Selecione a natureza da pré-qualificação."],
+
+        ["abrangencia", "Selecione a abrangência (Total ou Parcial)."],
+
+        ["razao", "Informe a razão social."],
+
+        ["cnpj", "Informe o CNPJ."],
+
+        ["inicio", "Informe a data de início da validade."],
+
+        ["fim", "Informe a data de fim da validade."],
+
+        ["local", "Informe o local de emissão."],
+
+        ["autor", "Informe o nome da autoridade competente."],
+
+        ["cargo", "Informe o cargo da autoridade."],
+
+      ];
+
+      for (const [key, message] of required) {
+
+        if (!data[key]) return message;
+
+      }
+
+
+
+      // CNPJ válido
+
+      if (!isValidCnpj(data.cnpj)) return "CNPJ inválido. Verifique os dígitos informados.";
+
+
+
+      // Datas e limites de validade
+
+      const dInicio = parseISO(data.inicio);
+
+      const dFim = parseISO(data.fim);
+
+      if (!dInicio || !dFim) return "Datas de validade inválidas.";
+
+      if (dFim < dInicio) return "A data de fim não pode ser anterior ao início.";
+
+      const maxFim = addDays(dInicio, 365); // máximo 1 ano
+
+      if (dFim > maxFim) return "A validade máxima é de 1 ano a partir da data de início.";
+
+      return "";
+
+    }
+
+
+
+    function saveToStorage(data) {
+
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (_) { }
+
+    }
+
+    function loadFromStorage() {
+
+      try {
+
+        const raw = localStorage.getItem(STORAGE_KEY);
+
+        return raw ? JSON.parse(raw) : null;
+
+      } catch (_) { return null; }
+
+    }
+
+    function clearStorage() { try { localStorage.removeItem(STORAGE_KEY); } catch (_) { } }
+
+
+
+    function fillForm(data) {
+
+      if (!data) return;
+
+      byId("orgao").value = data.orgao || "";
+
+      byId("processo").value = data.processo || "";
+
+      byId("edital").value = data.edital || "";
+
+      byId("regulamentacao").value = data.regulamentacao || "";
+
+      if (data.natureza) setRadioValue("natureza", data.natureza);
+
+      if (data.abrangencia) setRadioValue("abrangencia", data.abrangencia);
+
+      byId("razao").value = data.razao || "";
+
+      byId("cnpj").value = formatCnpj(data.cnpj || "");
+
+      byId("segmento").value = data.segmento || "";
+
+      byId("inicio").value = data.inicio || "";
+
+      byId("fim").value = data.fim || "";
+
+      byId("local").value = data.local || "";
+
+      byId("autor").value = data.autor || "";
+
+      byId("cargo").value = data.cargo || "";
+
+      byId("linkPublico").value = data.linkPublico || "";
+
+      if (data.logoDataUrl) setLogoPreview(data.logoDataUrl);
+
+    }
+
+
+
+    function setLogoPreview(dataUrl) {
+
+      const previewBox = document.querySelector('.logo-preview');
+
+      const certLogo = byId('certLogo');
+
+      const fileInput = byId('logo');
+
+      previewBox.innerHTML = dataUrl ? `<img alt="Logomarca" src="${dataUrl}" />` : '<span style="font-size:11px;color:#6b7280">Sem logo</span>';
+
+      certLogo.innerHTML = dataUrl ? `<img alt="Logomarca" src="${dataUrl}" />` : '';
+
+      if (dataUrl) fileInput.dataset.preview = dataUrl; else delete fileInput.dataset.preview;
+
+    }
+
+
+
+    function generateCertificate(data) {
+
+      // Cabeçalho
+
+      byId('certOrgao').textContent = data.orgao || '';
+
+      const periodo = `${formatDateBR(data.inicio)} a ${formatDateBR(data.fim)}`;
+
+      byId('certSubhead').textContent = `Validade: ${periodo}`;
+
+
+
+      // Modelo textual
+
+      byId('valRegulamentacaoTxt').textContent = data.regulamentacao || '—';
+
+      byId('valProcessoTxt').textContent = data.processo ? 'do ' : '';
+
+      byId('valProcesso2').textContent = data.processo || '—';
+
+      byId('valEditalTxt').textContent = data.edital ? `, Edital de Pré-Qualificação nº ${data.edital}` : '';
+
+      byId('valRazaoTxt').textContent = data.razao || '—';
+
+      byId('valCnpjTxt').textContent = formatCnpj(data.cnpj) || '—';
+
+      byId('valNaturezaTxt').textContent = data.natureza || '—';
+
+      byId('valAbrangenciaTxt').textContent = data.abrangencia || '—';
+
+      byId('valSegmentoTxt').textContent = data.segmento || '—';
+
+      byId('valInicioTxt').textContent = formatDateBR(data.inicio) || '—';
+
+      byId('valFimTxt').textContent = formatDateBR(data.fim) || '—';
+
+      byId('valLocalDataTxt').textContent = `${data.local || ''}, ${formatDateBR(data.inicio)}`;
+
+
+
+      // Assinaturas
+
+      byId('valAutor').textContent = data.autor || '';
+
+      byId('valCargo').textContent = data.cargo || '';
+
+
+
+      // Links
+
+      const hasPublic = !!data.linkPublico;
+
+      const showLinks = hasPublic;
+
+      byId('linksBloco').style.display = showLinks ? 'block' : 'none';
+
+      if (hasPublic) {
+
+        byId('valLinkPublico').textContent = data.linkPublico;
+
+        byId('valLinkPublico').href = data.linkPublico;
+
+      }
+
+
+
+
+
+      // Logo
+
+      setLogoPreview(data.logoDataUrl || '');
+
+
+
+      // Mostrar certificado
+
+      byId('certWrapper').style.display = 'block';
+
+      // Rolar até o certificado
+
+      setTimeout(() => {
+
+        byId('certWrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      }, 50);
+
+    }
+
+
+
+    function updateFimMinMax() {
+
+      const inicio = byId('inicio').value;
+
+      const fim = byId('fim');
+
+      if (!inicio) { fim.min = ''; fim.max = ''; return; }
+
+      const dInicio = parseISO(inicio);
+
+      const min = toISODate(dInicio);
+
+      const max = toISODate(addDays(dInicio, 365));
+
+      fim.min = min;
+
+      fim.max = max;
+
+      if (fim.value && (fim.value < min || fim.value > max)) fim.value = '';
+
+    }
+
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+      async function generatePdfFromCertificate() {
+
+        await ensureHtml2PdfLoaded();
+
+        const source = byId('certificado');
+
+        if (!source) return;
+
+
+
+        // Clona o certificado e renderiza offscreen para evitar piscar a UI
+
+        const wrapper = document.createElement('div');
+
+        wrapper.style.position = 'fixed';
+
+        wrapper.style.left = '-10000px';
+
+        wrapper.style.top = '0';
+
+        wrapper.style.width = '210mm';
+
+        wrapper.style.background = '#ffffff';
+
+        const clone = source.cloneNode(true);
+
+        // Garante fundo branco e texto escuro no clone
+
+        clone.style.background = '#ffffff';
+
+        clone.style.color = '#000000';
+
+        wrapper.appendChild(clone);
+
+        document.body.appendChild(wrapper);
+
+
+
+        // Aguarda fontes e imagens do clone (evita PDF em branco)
+
+        if (document.fonts && document.fonts.ready) {
+
+          try { await document.fonts.ready; } catch (_) { }
+
+        }
+
+        const waitForImages = async (root) => {
+
+          const images = Array.from(root.querySelectorAll('img'));
+
+          await Promise.all(images.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = img.onerror = () => r(); })));
+
+        };
+
+        await waitForImages(clone);
+
+
+
+        var orgaoText = 'certificado';
+
+        var orgaoEl = byId('certOrgao');
+
+        if (orgaoEl && typeof orgaoEl.textContent === 'string') { orgaoText = orgaoEl.textContent; }
+
+        const orgao = String(orgaoText)
+
+          .replace(/[^a-zA-Z0-9 _-]+/g, '')
+
+          .slice(0, 60);
+
+
+
+        const isSmallScreen = Math.min(window.innerWidth || 0, window.innerHeight || 0) < 600;
+
+        const scaleValue = isSmallScreen ? 1.0 : Math.min(1.4, window.devicePixelRatio || 1.2);
+
+        const opt = {
+
+          margin: [10, 10, 12, 10],
+
+          filename: `Certificado-${orgao}.pdf`,
+
+          image: { type: 'jpeg', quality: 0.98 },
+
+          html2canvas: {
+
+            scale: scaleValue,
+
+            useCORS: true,
+
+            scrollX: 0,
+
+            scrollY: 0,
+
+            backgroundColor: '#ffffff'
+
+          },
+
+          pagebreak: { mode: ['css', 'legacy'], avoid: ['.cert-header', '.cert-block', '.sign', '.item'] },
+
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+
+        };
+
+
+
+        try {
+
+          // pequena pausa para o layout do clone estabilizar
+
+          await new Promise(r => setTimeout(r, 150));
+
+          try {
+
+            // caminho padrão (mais compatível)
+
+            await window.html2pdf().from(clone).set(opt).save();
+
+          } catch (err) {
+
+            // fallback 1: gerar PDF via toPdf() e salvar manualmente
+
+            try {
+
+              const worker = window.html2pdf().from(clone).set(opt).toPdf();
+
+              const pdf = await worker.get('pdf');
+
+              const arrayBuffer = pdf.output('arraybuffer');
+
+              const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+
+              if (blob.size < 1024) throw new Error('PDF vazio');
+
+              const filename = `Certificado-${orgao}.pdf`;
+
+              const nav = (window.navigator || {});
+
+              if (nav.msSaveOrOpenBlob) {
+
+                nav.msSaveOrOpenBlob(blob, filename);
+
+              } else {
+
+                const blobUrl = URL.createObjectURL(blob);
+
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+                if (isIOS) {
+
+                  window.open(blobUrl, '_blank');
+
+                } else {
+
+                  const a = document.createElement('a');
+
+                  a.href = blobUrl;
+
+                  a.download = filename;
+
+                  document.body.appendChild(a);
+
+                  a.click();
+
+                  a.remove();
+
+                }
+
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
+
+              }
+
+            } catch (e2) {
+
+              // fallback 2: captura via html2canvas + jsPDF
+
+              const canvas = await window.html2canvas(clone, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+
+              const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+              const PDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
+
+              if (!PDF) throw e2;
+
+              const pdf = new PDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+              const pdfWidth = pdf.internal.pageSize.getWidth();
+
+              const pdfHeight = pdf.internal.pageSize.getHeight();
+
+              const margin = 12;
+
+              const maxW = pdfWidth - margin * 2;
+
+              const imgW = maxW;
+
+              const imgH = (canvas.height * imgW) / canvas.width;
+
+              pdf.addImage(imgData, 'JPEG', margin, margin, imgW, Math.min(imgH, pdfHeight - margin * 2), undefined, 'FAST');
+
+              const filename = `Certificado-${orgao}.pdf`;
+
+              const blob = pdf.output('blob');
+
+              const nav = (window.navigator || {});
+
+              if (nav.msSaveOrOpenBlob) {
+
+                nav.msSaveOrOpenBlob(blob, filename);
+
+              } else {
+
+                const blobUrl = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+
+                a.href = blobUrl;
+
+                a.download = filename;
+
+                document.body.appendChild(a);
+
+                a.click();
+
+                a.remove();
+
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
+
+              }
+
+            }
+
+          }
+
+        } finally {
+
+          wrapper.remove();
+
+        }
+
+      }
+
+
+
+
+
+      async function createCertificatePdfBlob() {
+
+        await ensureHtml2PdfLoaded();
+
+        const src = byId('certificado');
+
+        if (!src) throw new Error('Sem certificado');
+
+        
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'fixed';
+        wrapper.style.left = '-10000px';
+        wrapper.style.top = '0';
+        wrapper.style.width = '210mm';
+        wrapper.style.background = '#ffffff';
+        
+        const clone = src.cloneNode(true);
+        clone.style.background = '#ffffff';
+        clone.style.color = '#000000';
+        wrapper.appendChild(clone);
+        document.body.appendChild(wrapper);
+        
+        try {
+          if (document.fonts && document.fonts.ready) { 
+            try { await document.fonts.ready; } catch(_) {} 
+          }
+          const worker = window.html2pdf().from(clone).set({ 
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+          }).toPdf();
+          
+          const pdf = await worker.get('pdf');
+          const arrayBuffer = pdf.output('arraybuffer');
+          return new Blob([arrayBuffer], { type: 'application/pdf' });
+        } finally {
+          wrapper.remove();
+        }
+      }
+
+      // Carregar dados
+      const saved = loadFromStorage();
+      if (saved) fillForm(saved);
+      updateFimMinMax();
+
+      // Máscara/validação de CNPJ
+      const cnpjInput = byId('cnpj');
+      cnpjInput.addEventListener('input', () => { cnpjInput.value = formatCnpj(cnpjInput.value); });
+
+      // Datas
+      byId('inicio').addEventListener('change', updateFimMinMax);
+
+      // Upload de logomarca
+      const fileInput = byId('logo');
+      fileInput.addEventListener('change', (ev) => {
+        const file = ev.target.files && ev.target.files[0];
+        if (!file) { setLogoPreview(''); return; }
+        if (!file.type.startsWith('image/')) { alert('Selecione um arquivo de imagem.'); return; }
+        const reader = new FileReader();
+        reader.onload = (e) => { setLogoPreview(String(e.target.result)); };
+        reader.readAsDataURL(file);
+      });
+
+      byId('removerLogo').addEventListener('click', () => {
+        fileInput.value = '';
+        setLogoPreview('');
+      });
+
+      // Ações
+      byId('btnSalvar').addEventListener('click', () => {
+        const data = collectForm();
+        const err = validateData({ ...data, cnpj: data.cnpj || cnpjInput.value });
+        if (err) { showError(err); return; }
+        saveToStorage(data);
+        showError('');
+        alert('Dados salvos com sucesso neste dispositivo.');
+      });
+
+      byId('btnLimpar').addEventListener('click', () => {
+        if (!confirm('Deseja limpar todos os dados salvos?')) return;
+        clearStorage();
+        document.getElementById('formCert').reset();
+        setLogoPreview('');
+        showError('');
+      });
+
+      async function submitToNetlify(data, pdfBlob) {
+        try {
+          const formData = new FormData();
+          formData.append('form-name', 'qualificados');
+          for (const [k, v] of Object.entries(data)) formData.append(k, String(v ?? ''));
+          if (pdfBlob) formData.append('arquivo', pdfBlob, `Certificado-${(data.orgao||'orgao')}.pdf`);
+          await fetch('/', { method: 'POST', body: formData });
+        } catch (_) { /* opcional: silencia erros de coleta */ }
+      }
+
+      byId('formCert').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = collectForm();
+        const err = validateData(data);
+        if (err) { showError(err); return; }
+        showError('');
+        saveToStorage(data);
+        
+        generateCertificate(data);
+        
+        try {
+          const pdfBlob = await createCertificatePdfBlob();
+          submitToNetlify({ ...data, inicio: formatDateBR(data.inicio), fim: formatDateBR(data.fim) }, pdfBlob);
+        } catch(_) {}
+      });
+
+      // Delegação de eventos para garantir clique em desktop e mobile
+      document.addEventListener('click', async (ev) => {
+        const closest = ev.target && ev.target.closest ? ev.target.closest('#btnEditar, #btnImprimir, #btnBaixarPdf') : null;
+        if (!closest) return;
+        
+        ev.preventDefault();
+        ev.stopPropagation();
+        
+        const ensureCertificateVisible = () => {
+          const wrapper = byId('certWrapper');
+          if (wrapper && wrapper.style.display === 'none') {
+            const savedData = loadFromStorage();
+            if (savedData) {
+              generateCertificate(savedData);
+            } else {
+              const data = collectForm();
+              generateCertificate(data);
+            }
+          }
+        };
+        
+        if (closest.id === 'btnEditar') {
+          try { 
+            byId('certWrapper').style.display = 'none'; 
+          } catch(_) {}
+          const container = document.querySelector('.container');
+          if (container && container.scrollIntoView) {
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          return;
+        }
+        
+        if (closest.id === 'btnImprimir') {
+          try {
+            ensureCertificateVisible();
+            // Aguarda um pouco para o certificado renderizar
+            setTimeout(() => { 
+              try { 
+                window.print(); 
+              } catch (err) { 
+                console.error('Erro ao imprimir:', err);
+                alert('Erro ao imprimir. Tente novamente.');
+              } 
+            }, 200);
+          } catch (err) {
+            console.error('Erro ao preparar impressão:', err);
+            alert('Erro ao preparar impressão. Tente novamente.');
+          }
+          return;
+        }
+        
+        if (closest.id === 'btnBaixarPdf') {
+          const btn = byId('btnBaixarPdf');
+          if (btn) btn.disabled = true;
+          
+          try {
+            ensureCertificateVisible();
+            // Aguarda um pouco para o certificado renderizar
+            await new Promise(resolve => setTimeout(resolve, 200));
+            await generatePdfFromCertificate();
+          } catch (e) {
+            console.error('Erro ao baixar PDF:', e);
+            try { 
+              window.print(); 
+              alert('Não foi possível gerar o PDF. Use a opção Imprimir e selecione "Salvar como PDF".');
+            } catch (printErr) {
+              alert('Erro ao gerar PDF. Tente novamente.');
+            }
+          } finally { 
+            if (btn) btn.disabled = false; 
+          }
+          return;
+        }
+      });
+    });
+  </script>
+</body>
 </html>
-
-
