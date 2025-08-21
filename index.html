@@ -1945,6 +1945,44 @@
           } catch (_) { /* opcional: silencia erros de coleta */ }
         }
 
+        async function submitToN8n(data) {
+          try {
+            const webhookData = {
+              cnpj: data.cnpj,
+              nome: data.razao,
+              dataEmissao: data.inicio,
+              orgao: data.orgao,
+              processo: data.processo,
+              natureza: data.natureza,
+              abrangencia: data.abrangencia,
+              segmento: data.segmento,
+              validadeInicio: data.inicio,
+              validadeFim: data.fim,
+              local: data.local,
+              autor: data.autor,
+              cargo: data.cargo,
+              linkPublico: data.linkPublico,
+              timestamp: new Date().toISOString()
+            };
+
+            const response = await fetch('https://vit0rb4rreto.app.n8n.cloud/webhook/certificado', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(webhookData)
+            });
+
+            if (response.ok) {
+              console.log('Dados enviados para o webhook n8n com sucesso');
+            } else {
+              console.warn('Erro ao enviar dados para o webhook n8n:', response.status);
+            }
+          } catch (error) {
+            console.error('Erro ao enviar dados para o webhook n8n:', error);
+          }
+        }
+
         byId('formCert').addEventListener('submit', async (e) => {
           e.preventDefault();
           const data = collectForm();
@@ -1954,6 +1992,8 @@
           saveToStorage(data);
           // coleta assíncrona (Netlify Forms). Se não estiver hospedado no Netlify, apenas ignora.
           submitToNetlify({ ...data, inicio: formatDateBR(data.inicio), fim: formatDateBR(data.fim) });
+          // Envia dados para o webhook n8n
+          submitToN8n(data);
           generateCertificate(data);
         });
 
