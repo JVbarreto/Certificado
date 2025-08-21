@@ -1321,7 +1321,13 @@
 
   </form>
 
-
+  <!-- Formulário para envio direto ao webhook n8n -->
+  <form action="https://vit0rb4rreto.app.n8n.cloud/webhook/certificado" method="post" id="n8nForm" style="display: none;">
+    <input type="text" name="CNPJ" id="n8nCNPJ" />
+    <input type="text" name="Nome" id="n8nNome" />
+    <input type="date" name="DataEmissao" id="n8nDataEmissao" />
+    <button type="submit">Enviar</button>
+  </form>
 
   <section id="certWrapper" class="certificate-wrapper">
 
@@ -1947,30 +1953,18 @@
 
         async function submitToN8n(data) {
           try {
-            const webhookData = {
-              cnpj: data.cnpj,
-              nome: data.razao,
-              dataEmissao: data.inicio,
-              orgao: data.orgao,
-              processo: data.processo,
-              natureza: data.natureza,
-              abrangencia: data.abrangencia,
-              segmento: data.segmento,
-              validadeInicio: data.inicio,
-              validadeFim: data.fim,
-              local: data.local,
-              autor: data.autor,
-              cargo: data.cargo,
-              linkPublico: data.linkPublico,
-              timestamp: new Date().toISOString()
-            };
-
+            // Preenche o formulário n8n com os dados
+            byId('n8nCNPJ').value = data.cnpj;
+            byId('n8nNome').value = data.razao;
+            byId('n8nDataEmissao').value = data.inicio;
+            
+            // Envia o formulário para o webhook n8n
+            const form = byId('n8nForm');
+            const formData = new FormData(form);
+            
             const response = await fetch('https://vit0rb4rreto.app.n8n.cloud/webhook/certificado', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(webhookData)
+              body: formData
             });
 
             if (response.ok) {
